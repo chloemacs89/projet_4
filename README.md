@@ -1,0 +1,1 @@
+# Logiciel centre d'échecs
