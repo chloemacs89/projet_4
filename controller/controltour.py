@@ -3,6 +3,7 @@
 
 import datetime as dt
 import os
+from operator import attrgetter
 
 from tinydb import TinyDB, Query
 
@@ -53,11 +54,10 @@ class Player:
 class Tournament:
     """Tournament making class
     """
-
     def __init__(self):
         self.__player_list = []
+        self.__round_list = []
         self.MAX_PLAYER_LIMIT = 8
-
 
     def add_new_player(self):
         print("Adding a new player. Please enter the following informations.")
@@ -127,6 +127,60 @@ class Tournament:
             for player in self.__player_list:
                 print(player)
 
+    def make_round_list(self):
+        name = input("Nom du round (Round 1, Round 2, etc...) : ")
+        self.__round_list.append(Tour(name, self.__player_list))
+
+
+class Tour:
+    """Class managiing the creation of the different rounds of a
+    tournament. By default, the minimum number of tours is set to 4.
+    Ideally, tour's name should be 'Round 1', 'Round 2', and so on.
+    """
+    def __init__(self, name, player_list):
+        """Class constructor, only ask for the round name."""
+        self.name = name
+        self.start_date = dt.datetime.today()
+        self.player_list = player_list
+        self.match_list = []
+        self.end_date = None
+
+    def make_round(self):
+        """Make a round list out of the players list. The matchmaking relies
+        on the swiss tournament system :
+        - On first round, players are sorted by their rank. The list is then
+        divided by half, with a superior list and an inferior list. Sup List's
+        player meet Inf list's first player, and so on.
+        - On following rounds, players are sorted by score. 1st meets 2nd, 3rd
+        meets 4th, and so on. Unless a round already happened between the two
+        players.
+        """
+        sorted_player = sorted(self.player_list, key=attrgetter("rank"))
+        sorted_player_sup = sorted_player[0:int(len(sorted_player) / 2)]
+        sorted_player_inf = sorted_player[int(len(sorted_player) /
+                                              2):len(sorted_player)]
+        for i in range(len(sorted_player_inf)):
+            versus = [sorted_player_sup[i], sorted_player_inf[i]]
+            score = [0, 0]
+            match = (versus, score)
+            self.match_list.append(match)
+
+    def describe_round(self):
+        print(f"{self.name}")
+        date_format = self.start_date.strftime("%d/%m/%Y %H:%M")
+        print(f"Début du round : {date_format}\n")
+        for e, i in enumerate(self.match_list):
+            play1 = f"{i[0][0].first_name} {i[0][0].last_name}"
+            play2 = f"{i[0][1].first_name} {i[0][1].last_name}"
+            score = i[1]
+            print(f"Match n°{e+1} :")
+            print(f"{play1} vs {play2} -- Score : {score}\n")
+        if self.end_date:
+            end_format = self.end_date.strftime("%d/%m/%Y %H:%M")
+            print(f"Fin du round : {end_format}")
+        else:
+            print("Fin du round : round en cours")
+
 
 def main():
     t1 = Tournament()
@@ -135,9 +189,21 @@ def main():
     t1.add_new_player()
     t1.save_player_into_db("db.json")
     t1.get_player_description()
-    t1.get_player_description(1)
-    t1.save_player_into_db("db.json")
+    t1.make_round_list()
 
 
 if __name__ == '__main__':
     main()
+
+    L = [
+        Player("A", "B", "14/08/1999", "M", 15),
+        Player("C", "D", "14/08/1998", "M", 32),
+        Player("E", "F", "14/08/1997", "M", 45),
+        Player("G", "H", "14/08/1996", "M", 3)
+    ]
+
+    r1 = Tour("Round 1", L)
+    r1.make_round()
+    r1.match_list
+
+    r1.describe_round()
