@@ -98,7 +98,22 @@ class Tournament:
     def save_player_into_db(self, db_file):
         db = TinyDB(db_file)
         for player in self.__player_list:
-            db.insert(player.__dict__)
+            if db.search(Query().id_player == player.id_player):
+                print("Utilisateur déjà présent dans la DB.")
+                while True:
+                    rep = input(
+                        "Souhaitez-vous mettre à jour le rang du joueur ? (Oui/Non) "
+                    )
+                    if rep.lower() == "oui":
+                        db.update({"rank": player.rank},
+                                  Query().id_player == player.id_player)
+                        break
+                    elif rep.lower() == "non":
+                        break
+                    else:
+                        print("Réponse invalide.")
+            else:
+                db.insert(player.__dict__)
 
     def get_player_description(self, index=None):
         if index:
@@ -113,8 +128,10 @@ def main():
     t1.add_new_player()
     t1.get_player_description()
     t1.add_new_player()
+    t1.save_player_into_db("db.json")
     t1.get_player_description()
     t1.get_player_description(1)
+    t1.save_player_into_db("db.json")
 
 
 if __name__ == '__main__':
