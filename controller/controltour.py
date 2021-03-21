@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime as dt
+import os
 
 from tinydb import TinyDB, Query
 
@@ -52,8 +53,11 @@ class Player:
 class Tournament:
     """Tournament making class
     """
+
     def __init__(self):
         self.__player_list = []
+        self.MAX_PLAYER_LIMIT = 8
+
 
     def add_new_player(self):
         print("Adding a new player. Please enter the following informations.")
@@ -96,7 +100,8 @@ class Tournament:
             Player(l_name, f_name, date_birth, gender, rank))
 
     def save_player_into_db(self, db_file):
-        db = TinyDB(db_file)
+        file_path = os.path.join("data", db_file)
+        db = TinyDB(file_path)
         for player in self.__player_list:
             if db.search(Query().id_player == player.id_player):
                 print("Utilisateur déjà présent dans la DB.")
