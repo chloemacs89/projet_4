@@ -54,50 +54,61 @@ class Player:
 class Tournament:
     """Tournament making class
     """
-    def __init__(self):
+    def __init__(self, name, localization, time_control, description, beg_date, end_date=None):
+        self.name = name
+        self.localization = localization
+        self.beg_date = beg_date
+        self.end_date = end_date
+        self.time_control = time_control
+        self.description = description
         self.__player_list = []
         self.__round_list = []
         self.MAX_PLAYER_LIMIT = 8
 
     def add_new_player(self):
-        print("Adding a new player. Please enter the following informations.")
-        print()
-        l_name = input("Last name: ")
-        f_name = input("First name: ")
+        if len(self.__player_list) < self.MAX_PLAYER_LIMIT:
+            print("Adding a new player. Please enter the following informations.")
+            print()
+            l_name = input("Last name: ")
+            f_name = input("First name: ")
 
-        while True:
-            date_birth = input("Date of birth (JJ/MM/AAAA): ")
-            try:
-                dt.datetime.strptime(date_birth, "%d/%m/%Y")
-                break
-            except ValueError:
-                print(
-                    "Format ou date invalide, veuillez entrer une date valide")
+            while True:
+                date_birth = input("Date of birth (JJ/MM/AAAA): ")
+                # check date validity. Numbers validity and calendar validity
+                try:
+                    dt.datetime.strptime(date_birth, "%d/%m/%Y")
+                    break
+                except ValueError:
+                    print(
+                        "Format ou date invalide, veuillez entrer une date valide")
 
-        while True:
-            gender = input("Gender (M/F): ")
-            if gender.upper() in ("M", "F"):
-                break
-            else:
-                print("Veuillez entre M ou F uniquement.")
-
-        while True:
-            try:
-                rank = int(input("Rank (must be a positive integer): "))
-                if rank > 0:
+            while True:
+                gender = input("Gender (M/F): ")
+                if gender.upper() in ("M", "F"):
                     break
                 else:
-                    print(
-                        "La valeur doit être strictement positive. Veuillez entrer un nombre valide"
-                    )
-            except ValueError:
-                print(
-                    "La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide"
-                )
+                    print("Veuillez entre M ou F uniquement.")
 
-        print("\nPlayer Added to the tournament\n")
-        self.__player_list.append(
-            Player(l_name, f_name, date_birth, gender, rank))
+            while True:
+                try:
+                    rank = int(input("Rank (must be a positive integer): "))
+                    if rank > 0:
+                        break
+                    else:
+                        print(
+                            "La valeur doit être strictement positive. Veuillez entrer un nombre valide"
+                        )
+                except ValueError:
+                    print(
+                        "La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide"
+                    )
+
+            print(f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n")
+            self.__player_list.append(
+                Player(l_name, f_name, date_birth, gender, rank))
+        
+        else:
+            print("Impossible d'ajouter un nouveau joueur. Nombre maximal atteint")
 
     def save_player_into_db(self, db_file):
         file_path = os.path.join("data", db_file)
