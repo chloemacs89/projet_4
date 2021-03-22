@@ -4,6 +4,7 @@
 import datetime as dt
 import os
 from operator import attrgetter
+from itertools import permutations
 
 from tinydb import TinyDB, Query
 
@@ -96,6 +97,7 @@ class Tournament:
         self.__player_list = []
         self.__round_list = []
         self.MAX_PLAYER_LIMIT = 8
+        self.MAX_ROUND_LIST = 4
 
     def add_new_player(self):
         if len(self.__player_list) < self.MAX_PLAYER_LIMIT:
@@ -182,14 +184,15 @@ class Tournament:
         making mechanism is different from the following round, the method check for the 
         existence of a first round before making an instance. 
         """
-        name = input("Nom du round (Round 1, Round 2, etc...) : ")
         if not self.__round_list:
+            name = input("Nom du round (Round 1, Round 2, etc...) : ")
             rd = Tour(name, self.__player_list)
             rd.make_round()
             self.__round_list.append(rd)
         else:
+            name = input("Nom du round (Round 1, Round 2, etc...) : ")
             rd = Tour(name, self.__player_list, not_first=True)
-            rd.make_round()
+            rd.make_round(self.__round_list)
             self.__round_list.append(rd)
 
     def play_round(self):
@@ -220,9 +223,9 @@ class Tour:
         self.player_list = player_list
         self.match_list = []
         self.end_date = None
-        self.not_first = False
+        self.not_first = not_first
 
-    def make_round(self):
+    def make_round(self, prev_round_list=None):
         """Make a round list out of the players list. The matchmaking relies
         on the swiss tournament system :
         - On first round, players are sorted by their rank. The list is then
@@ -232,6 +235,7 @@ class Tour:
         meets 4th, and so on. Unless a round already happened between the two
         players.
         """
+        import pdb; pdb.set_trace()
         if not self.not_first:
             sorted_player = sorted(self.player_list, key=attrgetter("rank"))
             sorted_player_sup = sorted_player[0:int(len(sorted_player) / 2)]
@@ -243,7 +247,27 @@ class Tour:
                 match = (versus, score)
                 self.match_list.append(match)
         else:
-            pass
+            sorted_player = self.player_list[:]
+            sorted_player.sort(key=attrgetter("rank"))
+            sorted_player = sorted(sorted_player, key=attrgetter("_Player__score"), reverse=True)
+
+            for x in sorted_player:
+                print(x)
+
+            for i in range(len(sorted_player)):
+                if sorted_player:
+                    count = 1
+                    versus = [sorted_player[0], sorted_player[count]]
+                    for rounds in prev_round_list:
+                        for prev_round in rounds.match_list:
+                            if versus in permutations(prev_round[0]):
+                                count += 1
+                                versus = [sorted_player, sorted_player[count]]
+                    self.match_list.append((versus, [0, 0]))
+                    sorted_player.pop(0)
+                    sorted_player.pop(count-1)
+                else:
+                    pass
 
     def describe_round(self):
         print(f"{self.name}")
@@ -331,12 +355,27 @@ if __name__ == '__main__':
     r1.describe_round()
 
     t1 = Tournament("Tournoi", "Caen", "Blitz", "", "22/03/2021 14:25")
-    t1.add_new_player()
+    for x in range(4):
+        t1.add_new_player()
     t1.get_player_description()
-    t1.add_new_player()
     t1.save_player_into_db("db.json")
     t1.get_player_description()
     t1.add_round_to_list()
     t1.describe_round()
     t1.play_round()
-    t1.describe_round()
+    t1.describe_round(1)
+    
+    a = [
+        {"score": 5, "rang":1},
+        {"score": 5, "rang":23},
+        {"score": 4, "rang":6},
+        {"score": 4, "rang":2}
+    ]
+
+    l = []
+    for x in a:
+        t = (x["score"], x["rang"])
+        l.append(t)
+    l
+    l.sort(key=lambda c: c[1])
+    sorted(l, key=lambda c: c[0], reverse=True)
