@@ -138,11 +138,11 @@ class Tournament:
                         "La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide"
                     )
 
+            self.__player_list.append(
+                Player(l_name, f_name, date_birth, gender, rank))
             print(
                 f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n"
             )
-            self.__player_list.append(
-                Player(l_name, f_name, date_birth, gender, rank))
 
         else:
             print(
@@ -168,7 +168,7 @@ class Tournament:
                     else:
                         print("Réponse invalide.")
             else:
-                db.insert(player.player_saved_info)
+                db.insert(player.get_player_saved_info)
 
     def get_player_description(self, index=None):
         if index:
@@ -177,9 +177,35 @@ class Tournament:
             for player in self.__player_list:
                 print(player)
 
-    def make_round_list(self):
+    def add_round_to_list(self):
+        """Add a new Tour instance and create the round to be played. Since the first round 
+        making mechanism is different from the following round, the method check for the 
+        existence of a first round before making an instance. 
+        """
         name = input("Nom du round (Round 1, Round 2, etc...) : ")
-        self.__round_list.append(Tour(name, self.__player_list))
+        if not self.__round_list:
+            rd = Tour(name, self.__player_list)
+            rd.make_round()
+            self.__round_list.append(rd)
+        else:
+            rd = Tour(name, self.__player_list, not_first=True)
+            rd.make_round()
+            self.__round_list.append(rd)
+
+    def play_round(self):
+        for rounds in self.__round_list:
+            if rounds.end_date is None:
+                rounds.play_round()
+            else:
+                pass
+
+    def describe_round(self, index=None):
+        if index is None:
+            for rd in self.__round_list:
+                rd.describe_round()
+        else:
+            rd = self.__round_list[index]
+            rd.describe_round()
 
 
 class Tour:
@@ -187,13 +213,14 @@ class Tour:
     tournament. By default, the minimum number of tours is set to 4.
     Ideally, tour's name should be 'Round 1', 'Round 2', and so on.
     """
-    def __init__(self, name, player_list):
+    def __init__(self, name, player_list, not_first=False):
         """Class constructor, only ask for the round name."""
         self.name = name
         self.start_date = dt.datetime.today()
         self.player_list = player_list
         self.match_list = []
         self.end_date = None
+        self.not_first = False
 
     def make_round(self):
         """Make a round list out of the players list. The matchmaking relies
@@ -205,15 +232,18 @@ class Tour:
         meets 4th, and so on. Unless a round already happened between the two
         players.
         """
-        sorted_player = sorted(self.player_list, key=attrgetter("rank"))
-        sorted_player_sup = sorted_player[0:int(len(sorted_player) / 2)]
-        sorted_player_inf = sorted_player[int(len(sorted_player) /
-                                              2):len(sorted_player)]
-        for i in range(len(sorted_player_inf)):
-            versus = [sorted_player_sup[i], sorted_player_inf[i]]
-            score = [0, 0]
-            match = (versus, score)
-            self.match_list.append(match)
+        if not self.not_first:
+            sorted_player = sorted(self.player_list, key=attrgetter("rank"))
+            sorted_player_sup = sorted_player[0:int(len(sorted_player) / 2)]
+            sorted_player_inf = sorted_player[int(len(sorted_player) /
+                                                  2):len(sorted_player)]
+            for i in range(len(sorted_player_inf)):
+                versus = [sorted_player_sup[i], sorted_player_inf[i]]
+                score = [0, 0]
+                match = (versus, score)
+                self.match_list.append(match)
+        else:
+            pass
 
     def describe_round(self):
         print(f"{self.name}")
@@ -265,16 +295,20 @@ class Tour:
                     break
                 else:
                     print(" !! Commande invalide !!\n")
+        self.end_date = dt.datetime.today()
 
 
 def main():
-    t1 = Tournament()
+    t1 = Tournament("Tournoi", "Caen", "Blitz", "", "22/03/2021 14:25")
     t1.add_new_player()
     t1.get_player_description()
     t1.add_new_player()
     t1.save_player_into_db("db.json")
     t1.get_player_description()
-    t1.make_round_list()
+    t1.add_round_to_list()
+    t1.describe_round()
+    t1.play_round()
+    t1.describe_round()
 
 
 if __name__ == '__main__':
@@ -295,3 +329,14 @@ if __name__ == '__main__':
     r1.play_round()
 
     r1.describe_round()
+
+    t1 = Tournament("Tournoi", "Caen", "Blitz", "", "22/03/2021 14:25")
+    t1.add_new_player()
+    t1.get_player_description()
+    t1.add_new_player()
+    t1.save_player_into_db("db.json")
+    t1.get_player_description()
+    t1.add_round_to_list()
+    t1.describe_round()
+    t1.play_round()
+    t1.describe_round()
