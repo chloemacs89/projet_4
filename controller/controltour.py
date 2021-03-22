@@ -27,6 +27,31 @@ class Player:
         self.id_player = self.date_birth.replace("/", "")[4:] + "_" \
             + self.last_name[0] \
             + self.first_name[0]
+        self.__score = 0
+        self.__player_saved_info = {
+            "last_name": self.last_name,
+            "first_name": self.first_name,
+            "date_birth": self.date_birth,
+            "gender": self.gender,
+            "rank": self.rank,
+            "id_player": self.id_player
+        }
+
+    @property
+    def get_player_saved_info(self):
+        return self.__player_saved_info
+
+    @get_player_saved_info.setter
+    def set_player_saved_info(self, key, value):
+        self.__player_saved_info[key] = value
+
+    @property
+    def get_player_score(self):
+        return self.__score
+
+    @get_player_score.setter
+    def set_player_score(self, score):
+        self.__score = self.__score + score
 
     def __eq__(self, other):
         return self.rank == other.rank
@@ -48,13 +73,20 @@ class Player:
         Prénom : {self.first_name}
         Date de naissance : {self.date_birth}
         Sexe : {self.gender}
-        Rang : {self.rank}\n"""
+        Rang : {self.rank}
+        Score : {self.__score}\n"""
 
 
 class Tournament:
     """Tournament making class
     """
-    def __init__(self, name, localization, time_control, description, beg_date, end_date=None):
+    def __init__(self,
+                 name,
+                 localization,
+                 time_control,
+                 description,
+                 beg_date,
+                 end_date=None):
         self.name = name
         self.localization = localization
         self.beg_date = beg_date
@@ -67,7 +99,9 @@ class Tournament:
 
     def add_new_player(self):
         if len(self.__player_list) < self.MAX_PLAYER_LIMIT:
-            print("Adding a new player. Please enter the following informations.")
+            print(
+                "Adding a new player. Please enter the following informations."
+            )
             print()
             l_name = input("Last name: ")
             f_name = input("First name: ")
@@ -80,7 +114,8 @@ class Tournament:
                     break
                 except ValueError:
                     print(
-                        "Format ou date invalide, veuillez entrer une date valide")
+                        "Format ou date invalide, veuillez entrer une date valide"
+                    )
 
             while True:
                 gender = input("Gender (M/F): ")
@@ -103,12 +138,16 @@ class Tournament:
                         "La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide"
                     )
 
-            print(f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n")
+            print(
+                f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n"
+            )
             self.__player_list.append(
                 Player(l_name, f_name, date_birth, gender, rank))
-        
+
         else:
-            print("Impossible d'ajouter un nouveau joueur. Nombre maximal atteint")
+            print(
+                "Impossible d'ajouter un nouveau joueur. Nombre maximal atteint"
+            )
 
     def save_player_into_db(self, db_file):
         file_path = os.path.join("data", db_file)
@@ -129,7 +168,7 @@ class Tournament:
                     else:
                         print("Réponse invalide.")
             else:
-                db.insert(player.__dict__)
+                db.insert(player.player_saved_info)
 
     def get_player_description(self, index=None):
         if index:
@@ -180,17 +219,52 @@ class Tour:
         print(f"{self.name}")
         date_format = self.start_date.strftime("%d/%m/%Y %H:%M")
         print(f"Début du round : {date_format}\n")
+        self.describe_match()
+        if self.end_date:
+            end_format = self.end_date.strftime("%d/%m/%Y %H:%M")
+            print(f"Fin du round : {end_format}\n")
+        else:
+            print("Fin du round : round en cours\n")
+
+    def describe_match(self):
         for e, i in enumerate(self.match_list):
             play1 = f"{i[0][0].first_name} {i[0][0].last_name}"
             play2 = f"{i[0][1].first_name} {i[0][1].last_name}"
             score = i[1]
             print(f"Match n°{e+1} :")
-            print(f"{play1} vs {play2} -- Score : {score}\n")
-        if self.end_date:
-            end_format = self.end_date.strftime("%d/%m/%Y %H:%M")
-            print(f"Fin du round : {end_format}")
-        else:
-            print("Fin du round : round en cours")
+            print(f"(J1) {play1} vs {play2} (J2) -- Score : {score}\n")
+
+    def play_round(self):
+        print(f"Résultat pour le {self.name}.\n")
+        print("Entrer 'J1' si J1 gagnant.")
+        print("Entrer 'J2' si J2 gagnant.")
+        print("Entrer 'Nul' si le match est nul.")
+        self.describe_match()
+        for e, i in enumerate(self.match_list):
+            P1 = i[0][0]
+            P2 = i[0][1]
+            while True:
+                result = input(f"Resultat Match n°{e+1} : ")
+                if result == "J1":
+                    i[1][0] = 1
+                    i[1][1] = 0
+                    P1.set_player_score = i[1][0]
+                    P2.set_player_score = i[1][1]
+                    break
+                elif result == "J2":
+                    i[1][0] = 0
+                    i[1][1] = 1
+                    P1.set_player_score = i[1][0]
+                    P2.set_player_score = i[1][1]
+                    break
+                elif result.lower() == "nul":
+                    i[1][0] = 0.5
+                    i[1][1] = 0.5
+                    P1.set_player_score = i[1][0]
+                    P2.set_player_score = i[1][1]
+                    break
+                else:
+                    print(" !! Commande invalide !!\n")
 
 
 def main():
@@ -216,5 +290,8 @@ if __name__ == '__main__':
     r1 = Tour("Round 1", L)
     r1.make_round()
     r1.match_list
+
+    r1.describe_round()
+    r1.play_round()
 
     r1.describe_round()
