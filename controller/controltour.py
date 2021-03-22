@@ -184,16 +184,21 @@ class Tournament:
         making mechanism is different from the following round, the method check for the 
         existence of a first round before making an instance. 
         """
-        if not self.__round_list:
-            name = input("Nom du round (Round 1, Round 2, etc...) : ")
-            rd = Tour(name, self.__player_list)
-            rd.make_round()
-            self.__round_list.append(rd)
+        if len(self.__round_list) < self.MAX_ROUND_LIST:
+            if not self.__round_list:
+                name = input("Nom du round (Round 1, Round 2, etc...) : ")
+                rd = Tour(name, self.__player_list)
+                rd.make_round()
+                self.__round_list.append(rd)
+            else:
+                name = input("Nom du round (Round 1, Round 2, etc...) : ")
+                rd = Tour(name, self.__player_list, not_first=True)
+                rd.make_round(self.__round_list)
+                self.__round_list.append(rd)
         else:
-            name = input("Nom du round (Round 1, Round 2, etc...) : ")
-            rd = Tour(name, self.__player_list, not_first=True)
-            rd.make_round(self.__round_list)
-            self.__round_list.append(rd)
+            print("Nombre de rounds maximum déjà joué.")
+            print("Impossible de créer un nouveau round.")
+            print("Tournoi terminé !\n")
 
     def play_round(self):
         for rounds in self.__round_list:
@@ -217,7 +222,9 @@ class Tour:
     Ideally, tour's name should be 'Round 1', 'Round 2', and so on.
     """
     def __init__(self, name, player_list, not_first=False):
-        """Class constructor, only ask for the round name."""
+        """Class constructor : ask for round name et player list from which
+        the rounds are made. The not_first argument is needed for every rounds
+        but the first"""
         self.name = name
         self.start_date = dt.datetime.today()
         self.player_list = player_list
@@ -235,7 +242,6 @@ class Tour:
         meets 4th, and so on. Unless a round already happened between the two
         players.
         """
-        import pdb; pdb.set_trace()
         if not self.not_first:
             sorted_player = sorted(self.player_list, key=attrgetter("rank"))
             sorted_player_sup = sorted_player[0:int(len(sorted_player) / 2)]
@@ -251,19 +257,22 @@ class Tour:
             sorted_player.sort(key=attrgetter("rank"))
             sorted_player = sorted(sorted_player, key=attrgetter("_Player__score"), reverse=True)
 
-            for x in sorted_player:
-                print(x)
-
             for i in range(len(sorted_player)):
+                # loop until 'sorted_player' is empty
                 if sorted_player:
                     count = 1
                     versus = [sorted_player[0], sorted_player[count]]
+                    # Loop to check if players already met each other in all of the
+                    # previous rounds played before
                     for rounds in prev_round_list:
                         for prev_round in rounds.match_list:
+                            # If players already met, the first player in the list
+                            # is paired with the next player. 
                             if versus in permutations(prev_round[0]):
                                 count += 1
                                 versus = [sorted_player, sorted_player[count]]
                     self.match_list.append((versus, [0, 0]))
+                    # Once paired, players are removed from the list. 
                     sorted_player.pop(0)
                     sorted_player.pop(count-1)
                 else:
