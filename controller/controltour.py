@@ -32,10 +32,11 @@ class Tournament:
         self.MAX_ROUND_LIST = 4
 
     def add_new_player(self):
+        """Class to manually add a new player to the tournament. Can be done until 
+        MAX_PLAYER_LIMIT is reached. 
+        """
         if len(self.__player_list) < self.MAX_PLAYER_LIMIT:
-            print(
-                "Adding a new player. Please enter the following informations."
-            )
+            print("Adding a new player. Please enter the following informations.")
             print()
             l_name = input("Last name: ")
             f_name = input("First name: ")
@@ -47,9 +48,7 @@ class Tournament:
                     dt.datetime.strptime(date_birth, "%d/%m/%Y")
                     break
                 except ValueError:
-                    print(
-                        "Format ou date invalide, veuillez entrer une date valide"
-                    )
+                    print("Format ou date invalide, veuillez entrer une date valide")
 
             while True:
                 gender = input("Gender (M/F): ")
@@ -64,35 +63,25 @@ class Tournament:
                     if rank > 0:
                         break
                     else:
-                        print(
-                            "La valeur doit être strictement positive. Veuillez entrer un nombre valide"
-                        )
+                        print("La valeur doit être strictement positive. Veuillez entrer un nombre valide")
                 except ValueError:
-                    print(
-                        "La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide"
-                    )
+                    print("La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide")
 
             self.__player_list.append(
                 Player(l_name, f_name, date_birth, gender, rank))
-            print(
-                f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n"
-            )
-
+            print(f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n")
         else:
-            print(
-                "Impossible d'ajouter un nouveau joueur. Nombre maximal atteint"
-            )
+            print("Impossible d'ajouter un nouveau joueur. Nombre maximal atteint")
 
     def save_player_into_db(self, db_file):
+        # TODO: TO WRITE INTO THE MODEL FILES
         file_path = os.path.join("data", db_file)
         db = TinyDB(file_path)
         for player in self.__player_list:
             if db.search(Query().id_player == player.id_player):
                 print("Utilisateur déjà présent dans la DB.")
                 while True:
-                    rep = input(
-                        "Souhaitez-vous mettre à jour le rang du joueur ? (Oui/Non) "
-                    )
+                    rep = input("Souhaitez-vous mettre à jour le rang du joueur ? (Oui/Non) ")
                     if rep.lower() == "oui":
                         db.update({"rank": player.rank},
                                   Query().id_player == player.id_player)
@@ -105,11 +94,13 @@ class Tournament:
                 db.insert(player.get_player_saved_info)
 
     def get_player_description(self, index=None):
-        if index:
-            print(self.__player_list[index])
-        else:
+        if index is None:
             for player in self.__player_list:
                 print(player)
+        elif index in range(self.__player_list):
+            print(self.__player_list[index])
+        else:
+            print("Format de l'index invalide ou joueur inéxistant.\n")
 
     def add_round_to_list(self):
         """Add a new Tour instance and create the round to be played. Since the first round
@@ -143,9 +134,11 @@ class Tournament:
         if index is None:
             for rd in self.__round_list:
                 rd.describe_round()
-        else:
+        elif index in range(len(self.__round_list)):
             rd = self.__round_list[index]
             rd.describe_round()
+        else:
+            print("Format de l'index non valide ou round inéxistance.\n")
 
     def end_tournament(self):
         """Class to set the tournament's end date. Only works if
@@ -163,6 +156,17 @@ class Tournament:
         else:
             print("Le tournoi n'est pas terminé.")
             print("Impossible de fixer une date de fin.\n")
+
+    def __str__(self):
+        end_date_info = self.end_date if self.end_date else "En cours"
+        return f"""
+        Nom : {self.name}
+        Lieu : {self.localization}
+        Contrôle du temps : {self.time_control}
+        Date de début : {self.beg_date}
+        Date de fin :  {end_date_info}
+        Description : {self.description}
+        """
 
 
 if __name__ == '__main__':
