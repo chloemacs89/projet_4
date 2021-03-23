@@ -9,6 +9,7 @@ from tinydb import TinyDB, Query
 from controller.player import Player
 from controller.tour import Tour
 
+
 class Tournament:
     """Tournament making class
     """
@@ -145,6 +146,23 @@ class Tournament:
         else:
             rd = self.__round_list[index]
             rd.describe_round()
+
+    def end_tournament(self):
+        """Class to set the tournament's end date. Only works if
+        every rounds have been played (last round has an end date).
+        """
+        every_round_exit = len(self.__round_list) == self.MAX_ROUND_LIST
+        round_done = bool(self.__round_list[self.MAX_ROUND_LIST - 1].end_date)
+        if every_round_exit and round_done and not self.end_date:
+            while True:
+                self.end_date = input("Date de fin du tournoi (JJ/MM/AAAA) : ")
+                try:
+                    dt.datetime.strptime(self.end_date, "%d/%m/%Y")
+                except ValueError:
+                    print("Format invalide, veuillez recommencer.\n")
+        else:
+            print("Le tournoi n'est pas terminé.")
+            print("Impossible de fixer une date de fin.\n")
 
 
 if __name__ == '__main__':
