@@ -135,7 +135,7 @@ class Tournament:
             for rd in self.__round_list:
                 rd.describe_round()
         elif index in range(len(self.__round_list)):
-            rd = self.__round_list[index]
+            rd = self.__round_list[index-1]
             rd.describe_round()
         else:
             print("Format de l'index non valide ou round inéxistance.\n")
@@ -145,12 +145,13 @@ class Tournament:
         every rounds have been played (last round has an end date).
         """
         every_round_exit = len(self.__round_list) == self.MAX_ROUND_LIST
-        round_done = bool(self.__round_list[self.MAX_ROUND_LIST - 1].end_date)
+        round_done = bool(self.__round_list[len(self.__round_list) - 1].end_date)
         if every_round_exit and round_done and not self.end_date:
             while True:
                 self.end_date = input("Date de fin du tournoi (JJ/MM/AAAA) : ")
                 try:
                     dt.datetime.strptime(self.end_date, "%d/%m/%Y")
+                    break
                 except ValueError:
                     print("Format invalide, veuillez recommencer.\n")
         else:
@@ -171,11 +172,20 @@ class Tournament:
 
 if __name__ == '__main__':
     t1 = Tournament("Tournoi", "Caen", "Blitz", "", "22/03/2021 14:25")
-    for x in range(4):
+    for x in range(8):
         t1.add_new_player()
 
     t1.get_player_description()
     t1.add_round_to_list()
     t1.describe_round()
     t1.play_round()
-    t1.describe_round()
+    t1.describe_round(4)
+    t1.end_tournament()
+
+    shallow = t1._Tournament__player_list[:]
+    shallow.sort(key=attrgetter("rank"))
+    shallow = sorted(shallow, key=attrgetter("_Player__score"), reverse=True)
+    for p in shallow:
+        print(p.first_name, "Score :", p._Player__score, "Rang :", p.rank)
+
+    
