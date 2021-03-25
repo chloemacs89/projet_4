@@ -33,7 +33,6 @@ class Tour:
         meets 4th, and so on. Unless a round already happened between the two
         players.
         """
-        import pdb; pdb.set_trace()
         if not self.not_first:
             sorted_player = sorted(self.player_list, key=attrgetter("rank"))
             sorted_player_sup = sorted_player[0:int(len(sorted_player) / 2)]
@@ -64,7 +63,9 @@ class Tour:
                             # is paired with the next player.
                             if tuple(versus) in permutations(prev_round[0]):
                                 count += 1
-                                versus = [sorted_player[0], sorted_player[count]]
+                                versus = [
+                                    sorted_player[0], sorted_player[count]
+                                ]
                     self.match_list.append((versus, [0, 0]))
                     # Once paired, players are removed from the list.
                     sorted_player.pop(0)
@@ -127,10 +128,9 @@ class Tour:
         self.end_date = dt.datetime.today()
 
 
-
 if __name__ == '__main__':
     player_list = [
-        Player("POIRIER", "Marine", "14/05/1992","F", 1),
+        Player("POIRIER", "Marine", "14/05/1992", "F", 1),
         Player("VILLEY", "Chloé", "14/08/1989", "F", 2),
         Player("VILLEY", "Karine", "29/09/1985", "F", 28),
         Player("JOURDAN", "Evelyne", "04/10/1960", "F", 12),
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     tr.play_round()
     for p in tr.player_list:
         print(p)
-    
+
     prev_round.append(tr)
 
     tr2 = Tour("Round 2", player_list, not_first=True)
@@ -162,12 +162,10 @@ if __name__ == '__main__':
     tr3.make_round(prev_round)
     tr3.describe_match()
     tr3.play_round()
-    
+
     prev_round.append(tr3)
 
     tr4 = Tour("Round 4", player_list, not_first=True)
     tr4.make_round(prev_round)
     tr4.describe_match()
     tr4.play_round()
-
-
