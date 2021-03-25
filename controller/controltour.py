@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import datetime as dt
-import os
 
 from tinydb import TinyDB, Query
 
@@ -31,114 +30,51 @@ class Tournament:
         self.MAX_PLAYER_LIMIT = 8
         self.MAX_ROUND_LIST = 4
 
-    def add_new_player(self):
-        """Class to manually add a new player to the tournament. Can be done until 
-        MAX_PLAYER_LIMIT is reached. 
+    @property
+    def get_player_list(self):
+        return self.__player_list
+
+    @get_player_list.deleter
+    def del_player_from_list(self, index):
+        try:
+            del self.__player_list[index]
+        except IndexError:
+            return False
+
+    @property
+    def get_round_list(self):
+        return self.__round_list
+
+    def add_new_player(self, l_name, f_name, date_birth, gender, rank):
+        """Class to manually add a new player to the tournament. Can be done until
+        MAX_PLAYER_LIMIT is reached.
         """
-        if len(self.__player_list) < self.MAX_PLAYER_LIMIT:
-            print("Adding a new player. Please enter the following informations.")
-            print()
-            l_name = input("Last name: ")
-            f_name = input("First name: ")
-
-            while True:
-                date_birth = input("Date of birth (JJ/MM/AAAA): ")
-                # check date validity. Numbers validity and calendar validity
-                try:
-                    dt.datetime.strptime(date_birth, "%d/%m/%Y")
-                    break
-                except ValueError:
-                    print("Format ou date invalide, veuillez entrer une date valide")
-
-            while True:
-                gender = input("Gender (M/F): ")
-                if gender.upper() in ("M", "F"):
-                    break
-                else:
-                    print("Veuillez entre M ou F uniquement.")
-
-            while True:
-                try:
-                    rank = int(input("Rank (must be a positive integer): "))
-                    if rank > 0:
-                        break
-                    else:
-                        print("La valeur doit être strictement positive. Veuillez entrer un nombre valide")
-                except ValueError:
-                    print("La valeur doit être un nombre strictement positif, Veuillez entrer un nombre valide")
-
-            self.__player_list.append(
-                Player(l_name, f_name, date_birth, gender, rank))
-            print(f"\nPlayer Added to the tournament ({len(self.__player_list)}/{self.MAX_PLAYER_LIMIT})\n")
-        else:
-            print("Impossible d'ajouter un nouveau joueur. Nombre maximal atteint")
+        player = Player(l_name, f_name, date_birth, gender, rank)
+        self.__player_list.append(player)
 
     def save_player_into_db(self, db_file):
-        # TODO: TO WRITE INTO THE MODEL FILES
-        file_path = os.path.join("data", db_file)
-        db = TinyDB(file_path)
-        for player in self.__player_list:
-            if db.search(Query().id_player == player.id_player):
-                print("Utilisateur déjà présent dans la DB.")
-                while True:
-                    rep = input("Souhaitez-vous mettre à jour le rang du joueur ? (Oui/Non) ")
-                    if rep.lower() == "oui":
-                        db.update({"rank": player.rank},
-                                  Query().id_player == player.id_player)
-                        break
-                    elif rep.lower() == "non":
-                        break
-                    else:
-                        print("Réponse invalide.")
-            else:
-                db.insert(player.get_player_saved_info)
+        pass
 
-    def get_player_description(self, index=None):
-        if index is None:
-            for player in self.__player_list:
-                print(player)
-        elif index in range(self.__player_list):
-            print(self.__player_list[index])
-        else:
-            print("Format de l'index invalide ou joueur inéxistant.\n")
-
-    def add_round_to_list(self):
+    def add_round_to_list(self, round_name):
         """Add a new Tour instance and create the round to be played. Since the first round
         making mechanism is different from the following round, the method check for the
         existence of a first round before making an instance.
         """
-        if len(self.__round_list) < self.MAX_ROUND_LIST:
-            if not self.__round_list:
-                name = input("Nom du round (Round 1, Round 2, etc...) : ")
-                rd = Tour(name, self.__player_list)
-                rd.make_round()
-                self.__round_list.append(rd)
-            else:
-                name = input("Nom du round (Round 1, Round 2, etc...) : ")
-                rd = Tour(name, self.__player_list, not_first=True)
-                rd.make_round(self.__round_list)
-                self.__round_list.append(rd)
+        if not self.__round_list:
+            rd = Tour(round_name, self.__player_list)
+            rd.make_round()
+            self.__round_list.append(rd)
         else:
-            print("Nombre de rounds maximum déjà joué.")
-            print("Impossible de créer un nouveau round.")
-            print("Tournoi terminé !\n")
+            rd = Tour(round_name, self.__player_list, not_first=True)
+            rd.make_round(self.__round_list)
+            self.__round_list.append(rd)
 
     def play_round(self):
         for rounds in self.__round_list:
             if rounds.end_date is None:
                 rounds.play_round()
             else:
-                pass
-
-    def describe_round(self, index=None):
-        if index is None:
-            for rd in self.__round_list:
-                rd.describe_round()
-        elif index in range(len(self.__round_list)):
-            rd = self.__round_list[index-1]
-            rd.describe_round()
-        else:
-            print("Format de l'index non valide ou round inéxistance.\n")
+                raise Warning
 
     def end_tournament(self):
         """Class to set the tournament's end date. Only works if
@@ -187,5 +123,3 @@ if __name__ == '__main__':
     shallow = sorted(shallow, key=attrgetter("_Player__score"), reverse=True)
     for p in shallow:
         print(p.first_name, "Score :", p._Player__score, "Rang :", p.rank)
-
-    

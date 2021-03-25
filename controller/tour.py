@@ -73,33 +73,11 @@ class Tour:
                 else:
                     pass
 
-    def describe_round(self):
-        print(f"{self.name}")
-        date_format = self.start_date.strftime("%d/%m/%Y %H:%M")
-        print(f"Début du round : {date_format}\n")
-        self.describe_match()
-        if self.end_date:
-            end_format = self.end_date.strftime("%d/%m/%Y %H:%M")
-            print(f"Fin du round : {end_format}\n")
-            print("==============================\n")
-        else:
-            print("Fin du round : round en cours\n")
-            print("==============================\n")
-
-    def describe_match(self):
-        for e, i in enumerate(self.match_list):
-            play1 = f"{i[0][0].first_name} {i[0][0].last_name}"
-            play2 = f"{i[0][1].first_name} {i[0][1].last_name}"
-            score = i[1]
-            print(f"Match n°{e+1} :")
-            print(f"(J1) {play1} vs {play2} (J2) -- Score : {score}\n")
+    @property
+    def get_match_list(self):
+        return self.match_list
 
     def play_round(self):
-        print(f"Résultat pour le {self.name}.\n")
-        print("Entrer 'J1' si J1 gagnant.")
-        print("Entrer 'J2' si J2 gagnant.")
-        print("Entrer 'Nul' si le match est nul.")
-        self.describe_match()
         for e, i in enumerate(self.match_list):
             P1 = i[0][0]
             P2 = i[0][1]
