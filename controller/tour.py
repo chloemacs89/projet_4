@@ -6,6 +6,8 @@ from itertools import permutations
 from controller.player import Player
 import datetime as dt
 
+from tinydb import TinyDB, Query
+
 
 class Tour:
     """Class managiing the creation of the different rounds of a
@@ -105,6 +107,26 @@ class Tour:
                     print(" !! Commande invalide !!\n")
         self.end_date = dt.datetime.today()
 
+    def info_from_match(self):
+        match_info = {}
+        for e, info in enumerate(self.match_list):
+            sub_list = []
+            J1 = info[0][0].get_player_saved_info
+            J2 = info[0][1].get_player_saved_info
+            J1_inf = {"J1": J1}
+            J2_inf = {"J2": J2}
+            score = {"score": info[1]}
+            sub_list.append(J1_inf)
+            sub_list.append(J2_inf)
+            sub_list.append(score)
+            match_info[f"game {e+1}"] = sub_list
+        match_info["start_date"] = self.start_date
+        match_info["end_date"] = self.end_date
+        return match_info
+
+    def serialize_round(self):
+        return {f"{self.name}": self.info_from_match()}
+
 
 if __name__ == '__main__':
     player_list = [
@@ -122,10 +144,12 @@ if __name__ == '__main__':
 
     tr = Tour("Round 1", player_list)
     tr.make_round()
-    tr.describe_match()
+    # tr.describe_match()
     tr.play_round()
     for p in tr.player_list:
         print(p)
+    tr.info_from_match()
+    dct = tr.serialize_round()
 
     prev_round.append(tr)
 
@@ -147,3 +171,10 @@ if __name__ == '__main__':
     tr4.make_round(prev_round)
     tr4.describe_match()
     tr4.play_round()
+
+    db = TinyDB("roundRB.json")
+    rd_list = db.table("game_list")
+    t = tr.info_from_match()
+    rd_list.insert(t)
+    for g in rd_list:
+        print(g)
