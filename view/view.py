@@ -151,14 +151,15 @@ class Menu:
                                                      date_birth, gender, rank)
             print("Création terminée, ", end='')
             print(
-                f"{len(self.__current_tournament.get_player_list)}/{self.__current_tournament.MAX_PLAYER_LIMIT}"
+                f"({len(self.__current_tournament.get_player_list)}/{self.__current_tournament.MAX_PLAYER_LIMIT})"
             )
 
         else:
             print("Nombre de joueurs maximum atteint.")
 
     def add_round(self):
-        if len(self.__current_tournament.get_player_list) != self.__current_tournament.MAX_PLAYER_LIMIT:
+        if len(self.__current_tournament.get_player_list
+               ) != self.__current_tournament.MAX_PLAYER_LIMIT:
             print("Nombre de joueurs inscrits insuffisant.")
             print("Veuillez ajouter au moins 8 joueurs.\n")
             return
@@ -215,18 +216,25 @@ class Menu:
                 print("Format de l'index invalide.")
 
     def play_round(self):
-        nb_rd = len(self.__current_tournament.get_round_list) - 1
-        rd = self.__current_tournament.get_round_list[nb_rd]
-        if not rd.end_date:
-            print(f"Résultat pour le {rd.name}.\n")
-            print("Entrer 'J1' si J1 gagnant.")
-            print("Entrer 'J2' si J2 gagnant.")
-            print("Entrer 'Nul' si le match est nul.")
-            self.describe_rounds(nb_rd)
-            self.__current_tournament.play_round()
-        else:
-            print("Dernier round déjà joué.")
-            print("Créez un nouveau round à jouer.\n")
+        try:
+            nb_rd = len(self.__current_tournament.get_round_list) - 1
+            rd = self.__current_tournament.get_round_list[nb_rd]
+            if not rd.end_date:
+                print(f"Résultat pour le {rd.name}.\n")
+                print("Entrer 'J1' si J1 gagnant.")
+                print("Entrer 'J2' si J2 gagnant.")
+                print("Entrer 'Nul' si le match est nul.")
+                self.describe_rounds(nb_rd)
+                self.__current_tournament.play_round()
+            else:
+                print("Dernier round déjà joué.")
+                print("Créez un nouveau round à jouer.\n")
+        except IndexError:
+            print(
+                "Opération impossible. Veuillez créer une ronde au préalable.")
+        except Warning:
+            print(
+                "Opération impossible, la dernière ronde n'est pas terminée.")
 
     def describe_players(self, index=None, by_name=False, by_rank=False):
         players = self.__current_tournament.get_player_list
@@ -246,6 +254,100 @@ class Menu:
             except TypeError:
                 print("Format de l'indice incorrect.\n")
 
+    def get_file_list(self):
+        for files in self.__current_tournament.get_file_list():
+            print(files)
+
+    def add_player_from_db(self, db_file, player_id):
+        try:
+            self.__current_tournament.add_player_from_db(db_file, player_id)
+        except Exception as err:
+            print("Opération impossible :", err)
+        except Warning as err:
+            print("Opération impossible :", err)
+
+    def get_player_list_from_db(self, db_file):
+        for player in self.__current_tournament.get_player_list_from_db(
+                db_file):
+            for key, val in player.items():
+                print(key, ":", val, end=", ")
+
+    def describe_players_menu(self):
+        print(
+            "Afficher la liste des joueurs (à défaut, l'affichage se fait pas ordre d'ajout) :\n"
+        )
+        print("Par ordre alphabatique (1)")
+        print("Par ordre de classement (2)")
+        print("Afficher un joueur spécifique (3)")
+
+        while True:
+            resp = input("Choix : ")
+            if resp == "1":
+                self.describe_players(by_name=True)
+                break
+            elif resp == "2":
+                self.describe_players(by_rank=True)
+                break
+            elif resp == "3":
+                index = int(
+                    input("Joueur à afficher (choisir entre 1 et 8) : "))
+                self.describe_players(index=index)
+                break
+            else:
+                self.describe_players()
+                break
+
+    def load_player_menu(self):
+        print("==============================")
+        print("Menu de chargement des joueurs depuis la base de données.")
+        print("==============================\n")
+        print("Afficher la liste des fichiers de la base de données. (1)")
+        print(
+            "Afficher la liste des joueurs présents dans un fichier spécifique. (2)"
+        )
+        print("Ajouter un joueur depuis la base de données. (3)")
+        print("Retourner au menu du tournoi. (q)")
+
+        while True:
+            resp = input("Choix : ")
+            if resp == "1":
+                self.get_file_list()
+                break
+            elif resp == "2":
+                db_file = input("Nom du fichier : ")
+                self.get_player_list_from_db(db_file)
+                break
+            elif resp == "3":
+                db_file = input("Nom du fichier : ")
+                player_id = input("Entrer l'identifiant du joueur à ajouter (1000_AA) : ")
+                self.add_player_from_db(db_file, player_id)
+                break
+            elif resp == "q":
+                break
+            else:
+                print("Commande invalide !")
+
+        if resp in ("1", "2", "3", "4"):
+            self.load_player_menu()
+
+    def save_player_menu(self):
+        print("==============================")
+        print("Menu de sauvegarde des joueurs du tournoi.")
+        print("==============================\n")
+
+        db_file = input("Nom du fichier : ")
+
+        for player in self.__current_tournament.get_player_list:
+            try:
+                self.__current_tournament.save_player_into_db(db_file, player)
+            except Warning:
+                print(
+                    f"Joueurs ({player.get_player_saved_info['id_player']}) ",
+                    end='')
+                print(
+                    "déjà présent dans la base de données. N'a pas été sauvegardé.\n"
+                )
+
     def tournament_menu(self):
         print("==============================")
         print(f"{self.__current_tournament.name}, ", end='')
@@ -257,6 +359,9 @@ class Menu:
         print("Ajouter une nouveller ronde au tournoi. (2)")
         print("Entrer les résultats de la ronde en cours. (3)")
         print("Marquer le tournoi comme terminé. (4)")
+        print("Afficher la liste des joueurs (5)")
+        print("Accéder au menu des sauvegardes des joueurs. (6)")
+        print("Accéder au menu de chargement des joueurs. (7)")
         print("Revenir au menu principal (q)")
 
         while True:
@@ -272,12 +377,21 @@ class Menu:
                 break
             elif resp == "4":
                 break
+            elif resp == "5":
+                self.describe_players_menu()
+                break
+            elif resp == "6":
+                self.save_player_menu()
+                break
+            elif resp == "7":
+                self.load_player_menu()
+                break
             elif resp == "q":
                 break
             else:
                 print("Commande invalide.")
 
-        if resp in ("1", "2", "3", "4"):
+        if resp in ("1", "2", "3", "4", "5", "6", "7"):
             self.tournament_menu()
         elif resp == "q":
             self.start_menu()
@@ -289,6 +403,8 @@ if __name__ == '__main__':
     tr = clt.Tournament("Tournoi", "Caen", "Bullet", "", "25/03/2021 17:00")
 
     m._Menu__current_tournament = tr
+
+    m.load_player_menu()
 
     plyr = [
         clt.Player("POIRIER", "Marine", "14/05/1992", "F", 1),

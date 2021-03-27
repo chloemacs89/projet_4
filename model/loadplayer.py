@@ -8,6 +8,12 @@ from controller.player import Player
 from tinydb import TinyDB, Query
 
 
+def file_list_from_dir():
+    """Return list of files from 'data' directory
+    """
+    return os.listdir("data")
+
+
 class PlayerDB:
     """Parent class for players class to interact with players
     database.
@@ -28,6 +34,7 @@ class PlayerDB:
         self.info = Query()
 
 
+
 class SavePlayer(PlayerDB):
     """Class to save a player into player's database and from
     existing players in a tournament.
@@ -36,25 +43,17 @@ class SavePlayer(PlayerDB):
         "Class constructor, inherit from PlayerDB class constructor"
         super(SavePlayer, self).__init__(db_file_name)
 
-    def file_list_from_dir(self):
-        """Return list of files from 'data' directory
-        """
-        for files in os.listdir("data"):
-            print(files)
-
-    def save_player_into_db(self, players_list):
+    def save_player_into_db(self, player):
         """Saves player's infos into DB.
         """
-        for player in players_list:
-            player_data = player.get_player_saved_info
-            id_player = player_data["id_player"]
-            id_from_db = self.Players.get(self.info["id_player"] == id_player)
-            if id_player in id_from_db.values():
-                print(
-                    f"Joueur ({id_player}) déjà présent dans la base de données"
-                )
-            else:
-                self.Players.insert(player_data)
+        player_data = player.get_player_saved_info
+        id_player = player_data["id_player"]
+        id_from_db = self.Players.get(self.info["id_player"] == id_player)
+        if not id_from_db:
+            self.Players.insert(player_data)
+        else:
+            raise Warning(
+                f"Joueur ({id_player}) déjà présent dans la base de données.")
 
 
 class LoadPlayer(PlayerDB):
@@ -68,10 +67,7 @@ class LoadPlayer(PlayerDB):
     def list_player_from_db(self):
         "Print players data from the database."
         players_info = self.Players.search(self.info["last_name"].exists())
-        for player in players_info:
-            for key, val in player.items():
-                print(f"{key} : {val}, ", end='')
-            print()
+        return players_info
 
     def load_player_from_db(self, player_id):
         "Get a player's informations from db to return a Player instance"
@@ -83,8 +79,9 @@ class LoadPlayer(PlayerDB):
                           gender=player_exists["gender"],
                           rank=player_exists["rank"])
         else:
-            print(f"Joueur ({player_id}) absent de la base de données.")
-            print("Rappel du format : 1000_AA\n")
+            raise Warning(
+                f"Joueur ({player_id}) absent de la base de données. Rappel du format: '1000_AA'"
+            )
 
 
 if __name__ == '__main__':
@@ -103,8 +100,8 @@ if __name__ == '__main__':
     f = LoadPlayer("dbplayer.json")
     fs = SavePlayer("dbplayer.json")
 
-    fs.save_player_into_db(player_list)
+    fs.save_player_into_db(player_list[0])
 
-    f.list_player_from_db()
+    t = f.list_player_from_db()
     player = f.load_player_from_db("1959_VT")
     player2 = f.load_player_from_db("1959_CT")

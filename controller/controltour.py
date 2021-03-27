@@ -7,6 +7,7 @@ from tinydb import TinyDB, Query
 
 from controller.player import Player
 from controller.tour import Tour
+import model.loadplayer as lpdb
 
 
 class Tournament:
@@ -30,6 +31,10 @@ class Tournament:
         self.MAX_PLAYER_LIMIT = 8
         self.MAX_ROUND_LIST = 4
 
+    @staticmethod
+    def get_file_list():
+        return lpdb.file_list_from_dir()
+
     @property
     def get_player_list(self):
         return self.__player_list
@@ -52,8 +57,21 @@ class Tournament:
         player = Player(l_name, f_name, date_birth, gender, rank)
         self.__player_list.append(player)
 
-    def save_player_into_db(self, db_file):
-        pass
+    @staticmethod
+    def save_player_into_db(db_file, player):
+        save = lpdb.SavePlayer(db_file)
+        save.save_player_into_db(player)
+
+    def add_player_from_db(self, db_file, player_id):
+        load = lpdb.LoadPlayer(db_file)
+        if len(self.__player_list) != self.MAX_PLAYER_LIMIT:
+            self.__player_list.append(load.load_player_from_db(player_id))
+        else:
+            raise Exception("Limite maximale de joueurs atteinte.")
+
+    def get_player_list_from_db(self, db_file):
+        load = lpdb.LoadPlayer(db_file)
+        return load.list_player_from_db()
 
     def add_round_to_list(self, round_name):
         """Add a new Tour instance and create the round to be played. Since the first round
@@ -81,7 +99,8 @@ class Tournament:
         every rounds have been played (last round has an end date).
         """
         every_round_exit = len(self.__round_list) == self.MAX_ROUND_LIST
-        round_done = bool(self.__round_list[len(self.__round_list) - 1].end_date)
+        round_done = bool(self.__round_list[len(self.__round_list) -
+                                            1].end_date)
         if every_round_exit and round_done and not self.end_date:
             while True:
                 self.end_date = input("Date de fin du tournoi (JJ/MM/AAAA) : ")
