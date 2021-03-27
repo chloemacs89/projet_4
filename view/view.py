@@ -39,19 +39,23 @@ class Menu:
 
         if resp == "1":
             self.create_tournament()
+            self.tournament_menu()
         elif resp == "2":
             if self.__tournament_list:
-                pass
+                self.tournament_menu()
             else:
                 print(
                     " !! Action impossible, aucun tournoi n'a encore été créé ou chargé. !!\n"
                 )
                 self.start_menu()
         elif resp == "3":
+            # TODO: Fonctionnalité à implémenter dans le modèle et le contrôleur.
             pass
         elif resp == "4":
             if self.__tournament_list:
-                pass
+                for tournament in self.__tournament_list:
+                    print(tournament)
+                self.start_menu()
             else:
                 print(
                     " !! Action impossible, aucun tournoi n'a encore été créé ou chargé. !!\n"
@@ -103,7 +107,7 @@ class Menu:
 
     def add_player_to_tournament(self):
         if len(self.__current_tournament.get_player_list
-               ) < self.__current_tournament.MAX_ROUND_LIST:
+               ) < self.__current_tournament.MAX_PLAYER_LIMIT:
             print(
                 "Adding a new player. Please enter the following informations."
             )
@@ -154,6 +158,10 @@ class Menu:
             print("Nombre de joueurs maximum atteint.")
 
     def add_round(self):
+        if len(self.__current_tournament.get_player_list) != self.__current_tournament.MAX_PLAYER_LIMIT:
+            print("Nombre de joueurs inscrits insuffisant.")
+            print("Veuillez ajouter au moins 8 joueurs.\n")
+            return
         if len(self.__current_tournament.get_round_list
                ) < self.__current_tournament.MAX_ROUND_LIST:
             if not self.__current_tournament.get_round_list:
@@ -239,7 +247,40 @@ class Menu:
                 print("Format de l'indice incorrect.\n")
 
     def tournament_menu(self):
-        pass
+        print("==============================")
+        print(f"{self.__current_tournament.name}, ", end='')
+        print(f"{self.__current_tournament.localization}, ", end='')
+        print(f"{self.__current_tournament.beg_date}.")
+        print("==============================\n")
+
+        print("Ajouter un joueur au tournoi. (1)")
+        print("Ajouter une nouveller ronde au tournoi. (2)")
+        print("Entrer les résultats de la ronde en cours. (3)")
+        print("Marquer le tournoi comme terminé. (4)")
+        print("Revenir au menu principal (q)")
+
+        while True:
+            resp = input("Choix : ")
+            if resp == "1":
+                self.add_player_to_tournament()
+                break
+            elif resp == "2":
+                self.add_round()
+                break
+            elif resp == "3":
+                self.play_round()
+                break
+            elif resp == "4":
+                break
+            elif resp == "q":
+                break
+            else:
+                print("Commande invalide.")
+
+        if resp in ("1", "2", "3", "4"):
+            self.tournament_menu()
+        elif resp == "q":
+            self.start_menu()
 
 
 if __name__ == '__main__':
