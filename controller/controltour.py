@@ -48,7 +48,7 @@ class Tournament:
         if self.__player_list:
             for nb, info in enumerate(self.__player_list):
                 player_info = {}
-                player_info[f"player{nb}"] = info.serialize_player_tour_info()
+                player_info[f"player{nb}"] = info.get_player_saved_info
                 player_info_list.append(player_info)
 
         if player_info_list:
@@ -65,7 +65,7 @@ class Tournament:
         else:
             pass
 
-        return {"Tournament data": serial_info}
+        return serial_info
 
     @staticmethod
     def get_file_list():
@@ -123,10 +123,10 @@ class Tournament:
             rd.make_round(self.__round_list)
             self.__round_list.append(rd)
 
-    def play_round(self):
+    def play_round(self, game, result):
         for rounds in self.__round_list:
             if rounds.end_date is None:
-                rounds.play_round()
+                rounds.play_round(game, result)
             else:
                 raise Warning
 

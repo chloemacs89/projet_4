@@ -34,11 +34,6 @@ class Player:
     def get_player_saved_info(self):
         return self.__player_saved_info
 
-    def serialize_player_tour_info(self):
-        serialized_info = self.__player_saved_info.copy()
-        serialized_info["score"] = self.get_player_score
-        return serialized_info
-
     @get_player_saved_info.setter
     def set_player_saved_info(self, key, value):
         self.__player_saved_info[key] = value

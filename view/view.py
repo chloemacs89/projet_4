@@ -158,25 +158,34 @@ class Menu:
             print("Nombre de joueurs maximum atteint.")
 
     def add_round(self):
+        last_round_nb = len(self.__current_tournament.get_round_list)
+
         if len(self.__current_tournament.get_player_list
                ) != self.__current_tournament.MAX_PLAYER_LIMIT:
             print("Nombre de joueurs inscrits insuffisant.")
             print("Veuillez ajouter au moins 8 joueurs.\n")
-            return
+
         if len(self.__current_tournament.get_round_list
                ) < self.__current_tournament.MAX_ROUND_LIST:
+
             if not self.__current_tournament.get_round_list:
                 round_nb = 1
                 round_name = f"Round {round_nb}"
                 print(f"Création du {round_name} en cours...")
                 self.__current_tournament.add_round_to_list(round_name)
                 print("Création terminée.")
+
+            elif not self.__current_tournament.get_round_list[last_round_nb-1].end_date:
+                print("La dernière ronde n'a pas encore été jouée.")
+                print("Veuillez entrer les résultats avant de créer une nouvelle ronde.\n")
+
             else:
                 round_nb = len(self.__current_tournament.get_round_list) + 1
                 round_name = f"Round {round_nb}"
                 print(f"Création du {round_name} en cours...")
                 self.__current_tournament.add_round_to_list(round_name)
                 print("Création terminée.")
+
         else:
             print("Nombre de round maximum déjà atteint.")
             print("Impossible de créer un nouveau round.\n")
@@ -189,8 +198,7 @@ class Menu:
             print(f"Match n°{e+1} :")
             print(f"(J1) {play1} vs {play2} (J2) -- Score : {score}\n")
         if rd.end_date:
-            end_format = rd.end_date.strftime("%d/%m/%Y %H:%M")
-            print(f"Fin du round : {end_format}\n")
+            print(f"Fin du round : {rd.end_date}\n")
             print("==============================\n")
         else:
             print("Fin du round : round en cours\n")
@@ -219,13 +227,31 @@ class Menu:
         try:
             nb_rd = len(self.__current_tournament.get_round_list) - 1
             rd = self.__current_tournament.get_round_list[nb_rd]
+
             if not rd.end_date:
                 print(f"Résultat pour le {rd.name}.\n")
                 print("Entrer 'J1' si J1 gagnant.")
                 print("Entrer 'J2' si J2 gagnant.")
                 print("Entrer 'Nul' si le match est nul.")
                 self.describe_rounds(nb_rd)
-                self.__current_tournament.play_round()
+
+                for nb, game in enumerate(rd.get_match_list):
+                    while True:
+                        result = input(f"Résultat match {nb+1} (J1, J2 ou nul) : ")
+                        if result.upper() in ("J1", "J2", "NUL"):
+                            self.__current_tournament.play_round(game, result)
+                            break
+                        else:
+                            print("Commande invalide !\n")
+                while True:
+                    date = input("Date de fin de la ronde (JJ/MM/AAAA HH:MM) : ")
+                    try:
+                        dt.strptime(date, "%d/%m/%Y %H:%M")
+                        rd.end_date = date
+                        break
+                    except ValueError:
+                        print("Format de date invalide.\n")
+
             else:
                 print("Dernier round déjà joué.")
                 print("Créez un nouveau round à jouer.\n")
@@ -235,6 +261,44 @@ class Menu:
         except Warning:
             print(
                 "Opération impossible, la dernière ronde n'est pas terminée.")
+
+    def rounds_menu(self):
+        print("==============================")
+        print("Menu des rondes")
+        print("==============================\n")
+        print("Afficher une ronde spécifique. (1)")
+        print("Afficher l'ensemble des rondes du tournoi (2)")
+        print("Entrer les résultats de la ronde en cours (3)")
+        print("Retour au menu du tournoi. (q)\n")
+
+        while True:
+            choice = input("Choix : ")
+            print()
+            if choice == "1":
+                try:
+                    index = int(input("Numéro de la ronde à afficher (1, 2, 3 ou 4) : "))
+                except ValueError:
+                    print("Format de l'index invalide.\n")
+                    break
+                try:
+                    self.describe_rounds(index - 1)
+                    break
+                except IndexError:
+                    print(f"Ronde n°{index} inexistante.\n")
+                    break
+            elif choice == "2":
+                self.describe_rounds()
+                break
+            elif choice == "3":
+                self.play_round()
+                break
+            elif choice == "q":
+                break
+            else:
+                print("Comment invalide.\n")
+             
+        if choice in ("1", "2", "3", "4"):
+            self.rounds_menu()
 
     def describe_players(self, index=None, by_name=False, by_rank=False):
         players = self.__current_tournament.get_player_list
@@ -306,7 +370,7 @@ class Menu:
             "Afficher la liste des joueurs présents dans un fichier spécifique. (2)"
         )
         print("Ajouter un joueur depuis la base de données. (3)")
-        print("Retourner au menu du tournoi. (q)")
+        print("Retourner au menu du tournoi. (q)\n")
 
         while True:
             resp = input("Choix : ")
@@ -319,13 +383,14 @@ class Menu:
                 break
             elif resp == "3":
                 db_file = input("Nom du fichier : ")
-                player_id = input("Entrer l'identifiant du joueur à ajouter (1000_AA) : ")
+                player_id = input(
+                    "Entrer l'identifiant du joueur à ajouter (1000_AA) : ")
                 self.add_player_from_db(db_file, player_id)
                 break
             elif resp == "q":
                 break
             else:
-                print("Commande invalide !")
+                print("Commande invalide !\n")
 
         if resp in ("1", "2", "3", "4"):
             self.load_player_menu()
@@ -357,12 +422,12 @@ class Menu:
 
         print("Ajouter un joueur au tournoi. (1)")
         print("Ajouter une nouveller ronde au tournoi. (2)")
-        print("Entrer les résultats de la ronde en cours. (3)")
+        print("Accéder au menu des rondes. (3)")
         print("Marquer le tournoi comme terminé. (4)")
         print("Afficher la liste des joueurs (5)")
         print("Accéder au menu des sauvegardes des joueurs. (6)")
         print("Accéder au menu de chargement des joueurs. (7)")
-        print("Revenir au menu principal (q)")
+        print("Revenir au menu principal (q)\n")
 
         while True:
             resp = input("Choix : ")
@@ -373,7 +438,7 @@ class Menu:
                 self.add_round()
                 break
             elif resp == "3":
-                self.play_round()
+                self.rounds_menu()
                 break
             elif resp == "4":
                 break
@@ -404,7 +469,7 @@ if __name__ == '__main__':
 
     m._Menu__current_tournament = tr
 
-    m.load_player_menu()
+    m._Menu__tournament_list.append(tr)
 
     plyr = [
         clt.Player("POIRIER", "Marine", "14/05/1992", "F", 1),
@@ -419,6 +484,8 @@ if __name__ == '__main__':
 
     for p in plyr:
         m._Menu__current_tournament._Tournament__player_list.append(p)
+
+    m.start_menu()
 
     m.add_round()
     m.describe_rounds()

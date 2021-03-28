@@ -79,44 +79,24 @@ class Tour:
     def get_match_list(self):
         return self.match_list
 
-    def set_score_after_load(self, game, J1=False, J2=False, nil=False):
-        if J1:
+    def play_round(self, game, result):
+        P1 = game[0][0]
+        P2 = game[0][1]
+        if result == "J1":
             game[1][0] = 1
             game[1][1] = 0
-        elif J2:
+            P1.set_player_score = game[1][0]
+            P2.set_player_score = game[1][1]
+        elif result == "J2":
             game[1][0] = 0
             game[1][1] = 1
-        elif nil:
+            P1.set_player_score = game[1][0]
+            P2.set_player_score = game[1][1]
+        elif result.lower() == "nul":
             game[1][0] = 0.5
             game[1][1] = 0.5
-
-    def play_round(self):
-        for e, i in enumerate(self.match_list):
-            P1 = i[0][0]
-            P2 = i[0][1]
-            while True:
-                result = input(f"Resultat Match n°{e+1} : ")
-                if result == "J1":
-                    i[1][0] = 1
-                    i[1][1] = 0
-                    P1.set_player_score = i[1][0]
-                    P2.set_player_score = i[1][1]
-                    break
-                elif result == "J2":
-                    i[1][0] = 0
-                    i[1][1] = 1
-                    P1.set_player_score = i[1][0]
-                    P2.set_player_score = i[1][1]
-                    break
-                elif result.lower() == "nul":
-                    i[1][0] = 0.5
-                    i[1][1] = 0.5
-                    P1.set_player_score = i[1][0]
-                    P2.set_player_score = i[1][1]
-                    break
-                else:
-                    print(" !! Commande invalide !!\n")
-        self.end_date = dt.datetime.today()
+            P1.set_player_score = game[1][0]
+            P2.set_player_score = game[1][1]
 
     def info_from_match(self):
         match_info = {}
