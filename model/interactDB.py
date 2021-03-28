@@ -5,9 +5,6 @@ import os
 
 from tinydb import TinyDB, Query
 
-import controller.controltour as clt
-
-
 class InteractDB:
     """Parent class for players class to interact with players
     database.

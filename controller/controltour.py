@@ -8,6 +8,7 @@ from tinydb import TinyDB, Query
 from controller.player import Player
 from controller.tour import Tour
 import model.loadplayer as lpdb
+import model.tournamentdb as trdb
 
 
 class Tournament:
@@ -65,7 +66,7 @@ class Tournament:
         else:
             pass
 
-        return serial_info
+        return {"tournament_data": serial_info}
 
     @staticmethod
     def get_file_list():
@@ -108,6 +109,10 @@ class Tournament:
     def get_player_list_from_db(self, db_file):
         load = lpdb.LoadPlayer(db_file)
         return load.list_player_from_db()
+
+    def save_tournament_in_db(self, db_file_name, update=False):
+        tourn_info = self.serialize_tournament_info()
+        trdb.TournamentDB(db_file_name).save_tournament_in_db(tourn_info, update)
 
     def add_round_to_list(self, round_name):
         """Add a new Tour instance and create the round to be played. Since the first round
@@ -184,8 +189,6 @@ if __name__ == '__main__':
     t1.describe_round(4)
     t1.end_tournament()
 
-    shallow = t1._Tournament__player_list[:]
-    shallow.sort(key=attrgetter("rank"))
-    shallow = sorted(shallow, key=attrgetter("_Player__score"), reverse=True)
-    for p in shallow:
-        print(p.first_name, "Score :", p._Player__score, "Rang :", p.rank)
+    t1.save_tournament_in_db("tournamentdb.json", update=True)
+
+

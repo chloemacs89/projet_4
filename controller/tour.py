@@ -103,7 +103,7 @@ class Tour:
         for e, info in enumerate(self.match_list):
             score = info[1]
             match_info[f"game {e+1}"] = score
-        match_info["start_date"] = self.start_date
+        match_info["start_date"] = self.start_date.strftime("%d/%m/%Y %H:%M")
         match_info["end_date"] = self.end_date
         return match_info
 

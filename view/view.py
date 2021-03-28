@@ -30,9 +30,10 @@ class Menu:
             print("Accéder au menu du tournoi en cours (2)")
             print("Charger un tournoi depuis la base de données (3)")
             print("Afficher la liste des tournois (4)")
+            print("Changer le tournoi en cours (5)")
             print("Quitter l'application (q)\n")
             resp = input("Choix : ")
-            if resp in ("1", "2", "3", "4", "q"):
+            if resp in ("1", "2", "3", "4", "5", "q"):
                 break
             else:
                 print("Choix invalide")
@@ -61,6 +62,25 @@ class Menu:
                     " !! Action impossible, aucun tournoi n'a encore été créé ou chargé. !!\n"
                 )
                 self.start_menu()
+        elif resp == "5":
+            index = int(input("N° du tournoi à selectionner : "))
+            if self.__tournament_list:
+                try:
+                    self.__current_tournament = self.__tournament_list[index-1]
+                    print(f"Tournoi selectionné : ", end='')
+                    print(self.tournament_menu[index-1])
+                    print()
+                    self.start_menu()
+                except IndexError:
+                    print("Tournoi n°{index} inexistant.\n")
+                    self.start_menu()
+                except ValueError:
+                    print("Format de l'index invalide.\n")
+                    self.start_menu()
+            else:
+                print("Aucun tournoi inscrit dans la liste. Veuillez créer ou charger un tournoi.\n")
+                self.start_menu()
+                
         elif resp == "q":
             r = input(
                 "Êtes-vous sûr de vouloir quitter l'appplication ? (O/N) ")
@@ -70,8 +90,9 @@ class Menu:
                 self.start_menu()
 
     def create_tournament(self):
+        print("========================================")
         print("Bienvenue dans la création d'un tournoi.")
-        print("==============================\n")
+        print("========================================\n")
 
         name = input("Nom du tournoi : ")
         localization = input("Lieu du tournoi : ")
@@ -296,7 +317,6 @@ class Menu:
                 break
             else:
                 print("Comment invalide.\n")
-             
         if choice in ("1", "2", "3", "4"):
             self.rounds_menu()
 
@@ -335,6 +355,7 @@ class Menu:
                 db_file):
             for key, val in player.items():
                 print(key, ":", val, end=", ")
+            print()
 
     def describe_players_menu(self):
         print(
@@ -397,11 +418,29 @@ class Menu:
 
     def save_player_menu(self):
         print("==============================")
-        print("Menu de sauvegarde des joueurs du tournoi.")
+        print("Menu de sauvegarde des joueurs dans la base de données")
         print("==============================\n")
 
-        db_file = input("Nom du fichier : ")
+        print("Afficher la liste des fichier de la base de données. (1)")
+        print("Sauvegarder les joueurs dans la base de données (2)")
+        print("Retourner au menu du tournoi. (q)\n")
 
+        while True:
+            resp = input("Choix : ")
+            if resp == "1":
+                self.get_file_list()
+                break
+            elif resp == "2":
+                db_file = input("Nom du fichier : ")
+                self.save_player_into_db(db_file)
+                break
+            elif resp == "q":
+                break
+
+        if resp in ("1", "2"):
+            self.save_player_menu()
+
+    def save_player_into_db(self, db_file):
         for player in self.__current_tournament.get_player_list:
             try:
                 self.__current_tournament.save_player_into_db(db_file, player)
