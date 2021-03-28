@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 class Player:
     """Class to make an instance of a chess player. Includes the following
     informations :
@@ -11,7 +10,7 @@ class Player:
     - Gender
     - Rank
     """
-    def __init__(self, l_name, f_name, date_birth, gender, rank):
+    def __init__(self, l_name, f_name, date_birth, gender, rank, score=0):
         """Class constructor"""
         self.last_name = l_name.capitalize()
         self.first_name = f_name.capitalize()
@@ -19,9 +18,9 @@ class Player:
         self.gender = gender.upper()
         self.rank = rank
         self.id_player = self.date_birth.replace("/", "")[4:] + "_" \
-            + self.last_name[0] \
-            + self.first_name[0]
-        self.__score = 0
+            + self.last_name[0:3].upper() \
+            + self.first_name[0:3].upper()
+        self.__score = score
         self.__player_saved_info = {
             "last_name": self.last_name,
             "first_name": self.first_name,
@@ -34,6 +33,11 @@ class Player:
     @property
     def get_player_saved_info(self):
         return self.__player_saved_info
+
+    def serialize_player_tour_info(self):
+        serialized_info = self.__player_saved_info.copy()
+        serialized_info["score"] = self.get_player_score
+        return serialized_info
 
     @get_player_saved_info.setter
     def set_player_saved_info(self, key, value):

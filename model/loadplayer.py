@@ -3,9 +3,10 @@
 
 import os
 
-from controller.player import Player
-
 from tinydb import TinyDB, Query
+
+from controller.player import Player
+from model.interactDB import InteractDB
 
 
 def file_list_from_dir():
@@ -14,28 +15,7 @@ def file_list_from_dir():
     return os.listdir("data")
 
 
-class PlayerDB:
-    """Parent class for players class to interact with players
-    database.
-    """
-    def __init__(self, db_file_name):
-        """Class constructor, takes players db file name
-        and set the db's directory path."""
-        self.db_file_name = db_file_name
-
-        if os.path.exists("data"):
-            self.db_dir_path = os.path.join("data", db_file_name)
-        else:
-            os.mkdir("data")
-            self.db_dir_path = os.path.join("data", db_file_name)
-
-        self.database = TinyDB(self.db_dir_path)
-        self.Players = self.database.table("Players")
-        self.info = Query()
-
-
-
-class SavePlayer(PlayerDB):
+class SavePlayer(InteractDB):
     """Class to save a player into player's database and from
     existing players in a tournament.
     """
@@ -48,15 +28,15 @@ class SavePlayer(PlayerDB):
         """
         player_data = player.get_player_saved_info
         id_player = player_data["id_player"]
-        id_from_db = self.Players.get(self.info["id_player"] == id_player)
+        id_from_db = self.players.get(self.info["id_player"] == id_player)
         if not id_from_db:
-            self.Players.insert(player_data)
+            self.players.insert(player_data)
         else:
             raise Warning(
                 f"Joueur ({id_player}) déjà présent dans la base de données.")
 
 
-class LoadPlayer(PlayerDB):
+class LoadPlayer(InteractDB):
     """Class to load a player from player's database and
     send the data to the controller to make a Player instance.
     """
@@ -66,12 +46,12 @@ class LoadPlayer(PlayerDB):
 
     def list_player_from_db(self):
         "Print players data from the database."
-        players_info = self.Players.search(self.info["last_name"].exists())
+        players_info = self.players.search(self.info["last_name"].exists())
         return players_info
 
     def load_player_from_db(self, player_id):
         "Get a player's informations from db to return a Player instance"
-        player_exists = self.Players.get(self.info["id_player"] == player_id)
+        player_exists = self.players.get(self.info["id_player"] == player_id)
         if player_exists:
             return Player(l_name=player_exists["last_name"],
                           f_name=player_exists["first_name"],

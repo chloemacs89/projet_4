@@ -79,6 +79,17 @@ class Tour:
     def get_match_list(self):
         return self.match_list
 
+    def set_score_after_load(self, game, J1=False, J2=False, nil=False):
+        if J1:
+            game[1][0] = 1
+            game[1][1] = 0
+        elif J2:
+            game[1][0] = 0
+            game[1][1] = 1
+        elif nil:
+            game[1][0] = 0.5
+            game[1][1] = 0.5
+
     def play_round(self):
         for e, i in enumerate(self.match_list):
             P1 = i[0][0]
@@ -110,16 +121,8 @@ class Tour:
     def info_from_match(self):
         match_info = {}
         for e, info in enumerate(self.match_list):
-            sub_list = []
-            J1 = info[0][0].get_player_saved_info
-            J2 = info[0][1].get_player_saved_info
-            J1_inf = {"J1": J1}
-            J2_inf = {"J2": J2}
-            score = {"score": info[1]}
-            sub_list.append(J1_inf)
-            sub_list.append(J2_inf)
-            sub_list.append(score)
-            match_info[f"game {e+1}"] = sub_list
+            score = info[1]
+            match_info[f"game {e+1}"] = score
         match_info["start_date"] = self.start_date
         match_info["end_date"] = self.end_date
         return match_info

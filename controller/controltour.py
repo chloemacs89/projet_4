@@ -30,6 +30,42 @@ class Tournament:
         self.__round_list = []
         self.MAX_PLAYER_LIMIT = 8
         self.MAX_ROUND_LIST = 4
+        self.saved_info = {
+            "name": self.name,
+            "localization": self.localization,
+            "time_control": self.time_control,
+            "description": self.description,
+            "beg_date": self.beg_date,
+            "end_date": self.end_date
+        }
+
+    def serialize_tournament_info(self):
+        serial_info = {}
+        player_info_list = []
+        rounds_info_list = []
+        serial_info["tournament_info"] = self.saved_info
+
+        if self.__player_list:
+            for nb, info in enumerate(self.__player_list):
+                player_info = {}
+                player_info[f"player{nb}"] = info.serialize_player_tour_info()
+                player_info_list.append(player_info)
+
+        if player_info_list:
+            serial_info["players_list"] = player_info_list
+
+        if self.__round_list:
+            for info in self.__round_list:
+                rounds_info_list.append(info.serialize_round())
+        else:
+            pass
+
+        if rounds_info_list:
+            serial_info["rounds_list"] = rounds_info_list
+        else:
+            pass
+
+        return {"Tournament data": serial_info}
 
     @staticmethod
     def get_file_list():
@@ -127,11 +163,22 @@ class Tournament:
 
 if __name__ == '__main__':
     t1 = Tournament("Tournoi", "Caen", "Blitz", "", "22/03/2021 14:25")
-    for x in range(8):
-        t1.add_new_player()
 
-    t1.get_player_description()
-    t1.add_round_to_list()
+    t1.add_new_player("POIRIER", "Marine", "14/05/1992", "F", 1)
+    t1.add_new_player("VILLEY", "Chloé", "14/08/1989", "F", 2)
+    t1.add_new_player("VILLEY", "Karine", "29/09/1985", "F", 28)
+    t1.add_new_player("JOURDAN", "Evelyne", "04/10/1960", "F", 12)
+    t1.add_new_player("QUESNEY", "Dany", "07/05/1990", "M", 19)
+    t1.add_new_player("BRISE", "Vincent", "11/01/1990", "M", 6)
+    t1.add_new_player("VILLEY", "Thierry", "06/09/1959", "M", 10)
+    t1.add_new_player("SAINT-AUBIN", "Alana", "05/03/2016", "F", 156)
+
+    for plr in t1.get_player_list:
+        print(plr)
+
+    t1.serialize_tournament_info()
+
+    t1.add_round_to_list("Round 1")
     t1.describe_round()
     t1.play_round()
     t1.describe_round(4)
