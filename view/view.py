@@ -7,6 +7,130 @@ from operator import attrgetter
 import controller.controltour as clt
 
 
+def show_message(message):
+    print(message, "\n")
+
+
+def show_listed_data(data_list):
+    for data in data_list:
+        print(data)
+
+
+def show_done_action(message=None, current_val=None, max_val=None):
+    if message and current_val and max_val:
+        print(message, f"{current_val}/{max_val}\n")
+    else:
+        print("Opération terminée.\n")
+
+
+def show_warning(message):
+    print(f"### {message.upper()} ###\n")
+
+
+def show_start_menu(date, hour):
+    print("Bienvenue dans votre application de gestion de tournois d'échec.")
+    print(f"Nous somme le {date} à {hour}.\n")
+
+    print("Catégories disponibles.")
+    print("==============================\n")
+    print("Créer un nouveau tournoi (1)")
+    print("Accéder au menu du tournoi en cours (2)")
+    print("Charger un tournoi depuis la base de données (3)")
+    print("Afficher la liste des tournois (4)")
+    print("Changer le tournoi en cours (5)")
+    print("Quitter l'application (q)\n")
+
+
+def show_create_tournament():
+    print("========================================")
+    print("Bienvenue dans la création d'un tournoi.")
+    print("========================================\n")
+
+
+def show_tournament_menu(name, localization, start_date):
+    print("==============================")
+    print(f"{name}, ", end='')
+    print(f"{localization}, ", end='')
+    print(f"{start_date}.")
+    print("==============================\n")
+
+    print("Ajouter un joueur au tournoi. (1)")
+    print("Ajouter une nouveller ronde au tournoi. (2)")
+    print("Accéder au menu des rondes. (3)")
+    print("Marquer le tournoi comme terminé. (4)")
+    print("Afficher la liste des joueurs (5)")
+    print("Accéder au menu des sauvegardes des joueurs. (6)")
+    print("Accéder au menu de chargement des joueurs. (7)")
+    print("Revenir au menu principal (q)\n")
+
+
+def show_rounds_report(name, match_list, start_date, end_date):
+    print(f"{name}")
+    print(f"Début de la ronde : {start_date}\n")
+    for e, i in enumerate(match_list):
+        play1 = f"{i[0][0].first_name} {i[0][0].last_name}"
+        play2 = f"{i[0][1].first_name} {i[0][1].last_name}"
+        score = i[1]
+        print(f"Match n°{e+1} :")
+        print(f"(J1) {play1} vs {play2} (J2) -- Score : {score}\n")
+    if end_date:
+        print(f"Fin du round : {end_date}\n")
+        print("==============================\n")
+    else:
+        print("Fin du round : round en cours\n")
+        print("==============================\n")
+
+
+def show_players_report():
+    print("Afficher la liste des joueurs (à défaut, l'affichage se fait pas ordre d'ajout) :\n")
+    print("Par ordre alphabatique (1)")
+    print("Par ordre de classement (2)")
+    print("Afficher un joueur spécifique (3)")
+
+
+def show_rounds_menu():
+    print("==============================")
+    print("Menu des rondes")
+    print("==============================\n")
+    print("Afficher une ronde spécifique. (1)")
+    print("Afficher l'ensemble des rondes du tournoi (2)")
+    print("Entrer les résultats de la ronde en cours (3)")
+    print("Retour au menu du tournoi. (q)\n")
+
+
+def show_play_menu(round_name):
+    print(f"Résultat pour le {round_name}.\n")
+    print("Entrer 'J1' si J1 gagnant.")
+    print("Entrer 'J2' si J2 gagnant.")
+    print("Entrer 'Nul' si le match est nul.")
+
+
+def show_save_player_menu():
+    print("==============================")
+    print("Menu de sauvegarde des joueurs dans la base de données")
+    print("==============================\n")
+
+    print("Afficher la liste des fichier de la base de données. (1)")
+    print("Sauvegarder les joueurs dans la base de données (2)")
+    print("Retourner au menu du tournoi. (q)\n")
+
+
+def show_load_player_menu():
+    print("==============================")
+    print("Menu de chargement des joueurs depuis la base de données.")
+    print("==============================\n")
+    print("Afficher la liste des fichiers de la base de données. (1)")
+    print("Afficher la liste des joueurs présents dans un fichier spécifique. (2)")
+    print("Ajouter un joueur depuis la base de données. (3)")
+    print("Retourner au menu du tournoi. (q)\n")
+
+
+def show_key_val_data(dict_data):
+    for key, val in dict_data.items():
+        print(key, ":", val, end=", ")
+    print()
+
+
 class Menu:
     """Menu class. Is controlling the view et the whole menu of the chess
     application.
@@ -66,9 +190,10 @@ class Menu:
             index = int(input("N° du tournoi à selectionner : "))
             if self.__tournament_list:
                 try:
-                    self.__current_tournament = self.__tournament_list[index-1]
-                    print(f"Tournoi selectionné : ", end='')
-                    print(self.tournament_menu[index-1])
+                    self.__current_tournament = self.__tournament_list[index -
+                                                                       1]
+                    print("Tournoi selectionné : ", end='')
+                    print(self.tournament_menu[index - 1])
                     print()
                     self.start_menu()
                 except IndexError:
@@ -78,9 +203,11 @@ class Menu:
                     print("Format de l'index invalide.\n")
                     self.start_menu()
             else:
-                print("Aucun tournoi inscrit dans la liste. Veuillez créer ou charger un tournoi.\n")
+                print(
+                    "Aucun tournoi inscrit dans la liste. Veuillez créer ou charger un tournoi.\n"
+                )
                 self.start_menu()
-                
+
         elif resp == "q":
             r = input(
                 "Êtes-vous sûr de vouloir quitter l'appplication ? (O/N) ")
@@ -196,9 +323,12 @@ class Menu:
                 self.__current_tournament.add_round_to_list(round_name)
                 print("Création terminée.")
 
-            elif not self.__current_tournament.get_round_list[last_round_nb-1].end_date:
+            elif not self.__current_tournament.get_round_list[last_round_nb -
+                                                              1].end_date:
                 print("La dernière ronde n'a pas encore été jouée.")
-                print("Veuillez entrer les résultats avant de créer une nouvelle ronde.\n")
+                print(
+                    "Veuillez entrer les résultats avant de créer une nouvelle ronde.\n"
+                )
 
             else:
                 round_nb = len(self.__current_tournament.get_round_list) + 1
@@ -258,14 +388,16 @@ class Menu:
 
                 for nb, game in enumerate(rd.get_match_list):
                     while True:
-                        result = input(f"Résultat match {nb+1} (J1, J2 ou nul) : ")
+                        result = input(
+                            f"Résultat match {nb+1} (J1, J2 ou nul) : ")
                         if result.upper() in ("J1", "J2", "NUL"):
                             self.__current_tournament.play_round(game, result)
                             break
                         else:
                             print("Commande invalide !\n")
                 while True:
-                    date = input("Date de fin de la ronde (JJ/MM/AAAA HH:MM) : ")
+                    date = input(
+                        "Date de fin de la ronde (JJ/MM/AAAA HH:MM) : ")
                     try:
                         dt.strptime(date, "%d/%m/%Y %H:%M")
                         rd.end_date = date
@@ -297,7 +429,9 @@ class Menu:
             print()
             if choice == "1":
                 try:
-                    index = int(input("Numéro de la ronde à afficher (1, 2, 3 ou 4) : "))
+                    index = int(
+                        input(
+                            "Numéro de la ronde à afficher (1, 2, 3 ou 4) : "))
                 except ValueError:
                     print("Format de l'index invalide.\n")
                     break
@@ -337,6 +471,8 @@ class Menu:
                 print("Indice invalide.\n")
             except TypeError:
                 print("Format de l'indice incorrect.\n")
+
+    # TU EN ES LA #############################################################
 
     def get_file_list(self):
         for files in self.__current_tournament.get_file_list():

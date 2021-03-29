@@ -3,8 +3,6 @@
 
 import datetime as dt
 
-from tinydb import TinyDB, Query
-
 from controller.player import Player
 from controller.tour import Tour
 import model.loadplayer as lpdb
@@ -128,12 +126,11 @@ class Tournament:
             rd.make_round(self.__round_list)
             self.__round_list.append(rd)
 
-    def play_round(self, game, result):
-        for rounds in self.__round_list:
-            if rounds.end_date is None:
-                rounds.play_round(game, result)
-            else:
-                raise Warning
+    def play_round(self, roundp, game, result):
+        if roundp.end_date is None:
+            roundp.play_round(game, result)
+        else:
+            raise Warning
 
     def end_tournament(self):
         """Class to set the tournament's end date. Only works if
