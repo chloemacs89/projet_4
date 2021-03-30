@@ -4,7 +4,7 @@
 from datetime import datetime as dt
 from operator import attrgetter
 
-import controller.controltour as clt
+import model.tournament as trn
 
 
 def show_message(message):
@@ -244,7 +244,7 @@ class Menu:
                     "Format invalide. Veuillez rentrer une date et une heure valide"
                 )
 
-        chess_tournament = clt.Tournament(name, localization, time_control,
+        chess_tournament = trn.Tournament(name, localization, time_control,
                                           description, beg_date)
         self.__tournament_list.append(chess_tournament)
         self.__current_tournament = chess_tournament
@@ -647,14 +647,14 @@ if __name__ == '__main__':
     m._Menu__tournament_list.append(tr)
 
     plyr = [
-        clt.Player("POIRIER", "Marine", "14/05/1992", "F", 1),
-        clt.Player("VILLEY", "Chloé", "14/08/1989", "F", 2),
-        clt.Player("VILLEY", "Karine", "29/09/1985", "F", 16),
-        clt.Player("VILLEY", "Thierry", "06/09/1959", "M", 10),
-        clt.Player("JOURDAN", "Evelyne", "04/10/1960", "F", 24),
-        clt.Player("QUESNEY", "Dany", "07/05/1990", "M", 42),
-        clt.Player("BRISE", "Vincent", "11/10/1988", "M", 6),
-        clt.Player("SAINT-AUBIN", "Alana", "05/03/2016", "F", 156)
+        trn.Player("POIRIER", "Marine", "14/05/1992", "F", 1),
+        trn.Player("VILLEY", "Chloé", "14/08/1989", "F", 2),
+        trn.Player("VILLEY", "Karine", "29/09/1985", "F", 16),
+        trn.Player("VILLEY", "Thierry", "06/09/1959", "M", 10),
+        trn.Player("JOURDAN", "Evelyne", "04/10/1960", "F", 24),
+        trn.Player("QUESNEY", "Dany", "07/05/1990", "M", 42),
+        trn.Player("BRISE", "Vincent", "11/10/1988", "M", 6),
+        trn.Player("SAINT-AUBIN", "Alana", "05/03/2016", "F", 156)
     ]
 
     for p in plyr:

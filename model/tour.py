@@ -3,7 +3,7 @@
 
 from operator import attrgetter
 from itertools import permutations
-from controller.player import Player
+from model.player import Player
 import datetime as dt
 
 from tinydb import TinyDB, Query
@@ -64,10 +64,11 @@ class Tour:
                             # If players already met, the first player in the list
                             # is paired with the next player.
                             if tuple(versus) in permutations(prev_round[0]):
-                                count += 1
-                                versus = [
-                                    sorted_player[0], sorted_player[count]
-                                ]
+                                try:
+                                    count += 1
+                                    versus = [sorted_player[0], sorted_player[count]]
+                                except IndexError:
+                                    pass
                     self.match_list.append((versus, [0, 0]))
                     # Once paired, players are removed from the list.
                     sorted_player.pop(0)

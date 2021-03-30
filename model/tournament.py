@@ -3,9 +3,9 @@
 
 import datetime as dt
 
-from controller.player import Player
-from controller.tour import Tour
-import model.loadplayer as lpdb
+from model.player import Player
+from model.tour import Tour
+import model.playerdb as lpdb
 import model.tournamentdb as trdb
 
 

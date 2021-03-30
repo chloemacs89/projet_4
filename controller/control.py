@@ -5,9 +5,9 @@ import os
 from operator import attrgetter
 from datetime import datetime as dt
 
-import controller.controltour as clt
+import model.tournament as trn
 import view.view as view
-import model.loadplayer as lpdb
+import model.playerdb as lpdb
 import model.tournamentdb as trdb
 
 
@@ -130,7 +130,7 @@ class Control:
             except ValueError:
                 view.show_warning(self.error_messages["INVALID_DATE"])
 
-        chess_tournament = clt.Tournament(name, localization, time_control,
+        chess_tournament = trn.Tournament(name, localization, time_control,
                                           description, beg_date)
         self.tournament_list.append(chess_tournament)
         self.current_tournament = chess_tournament
@@ -423,21 +423,21 @@ class Control:
 
 if __name__ == '__main__':
     ct = Control()
-    tr = clt.Tournament("Tournoi", "Caen", "Bullet", "", "25/03/2021 17:00")
+    tr = trn.Tournament("Tournoi", "Caen", "Bullet", "", "25/03/2021 17:00")
 
     ct.current_tournament = tr
 
     ct.tournament_list.append(tr)
 
     plyr = [
-        clt.Player("POIRIER", "Marine", "14/05/1992", "F", 1),
-        clt.Player("VILLEY", "Chloé", "14/08/1989", "F", 2),
-        clt.Player("VILLEY", "Karine", "29/09/1985", "F", 16),
-        clt.Player("VILLEY", "Thierry", "06/09/1959", "M", 10),
-        clt.Player("JOURDAN", "Evelyne", "04/10/1960", "F", 24),
-        clt.Player("QUESNEY", "Dany", "07/05/1990", "M", 42),
-        clt.Player("BRISE", "Vincent", "11/10/1988", "M", 6),
-        clt.Player("SAINT-AUBIN", "Alana", "05/03/2016", "F", 156)
+        trn.Player("POIRIER", "Marine", "14/05/1992", "F", 1),
+        trn.Player("VILLEY", "Chloé", "14/08/1989", "F", 2),
+        trn.Player("VILLEY", "Karine", "29/09/1985", "F", 16),
+        trn.Player("VILLEY", "Thierry", "06/09/1959", "M", 10),
+        trn.Player("JOURDAN", "Evelyne", "04/10/1960", "F", 24),
+        trn.Player("QUESNEY", "Dany", "07/05/1990", "M", 42),
+        trn.Player("BRISE", "Vincent", "11/10/1988", "M", 6),
+        trn.Player("SAINT-AUBIN", "Alana", "05/03/2016", "F", 156)
     ]
 
     for p in plyr:

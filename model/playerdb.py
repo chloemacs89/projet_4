@@ -5,7 +5,7 @@ import os
 
 from tinydb import TinyDB, Query
 
-from controller.player import Player
+from model.player import Player
 from model.interactDB import InteractDB
 
 
