@@ -39,6 +39,9 @@ class Tournament:
         }
 
     def serialize_tournament_info(self):
+        """Return a dict object of tournament's serialized informations needed
+        to save tournament's data into database.
+        """
         serial_info = {}
         player_info_list = []
         rounds_info_list = []
@@ -65,10 +68,6 @@ class Tournament:
             pass
 
         return {"tournament_data": serial_info}
-
-    @staticmethod
-    def get_file_list():
-        return lpdb.file_list_from_dir()
 
     @property
     def get_player_list(self):
@@ -98,17 +97,19 @@ class Tournament:
         save.save_player_into_db(player)
 
     def add_player_from_db(self, db_file, player_id):
+        """Load serialized playters informations from database and
+        make an instance of class Player.
+        """
         load = lpdb.LoadPlayer(db_file)
         if len(self.__player_list) != self.MAX_PLAYER_LIMIT:
             self.__player_list.append(load.load_player_from_db(player_id))
         else:
             raise Exception("Limite maximale de joueurs atteinte.")
 
-    def get_player_list_from_db(self, db_file):
-        load = lpdb.LoadPlayer(db_file)
-        return load.list_player_from_db()
-
     def save_tournament_in_db(self, db_file_name, update=False):
+        """Write serialized tournaments information into a database
+        file by calling TournamentDB method.
+        """
         tourn_info = self.serialize_tournament_info()
         trdb.TournamentDB(db_file_name).save_tournament_in_db(tourn_info, update)
 
@@ -132,7 +133,7 @@ class Tournament:
         else:
             raise Warning
 
-    def end_tournament(self):
+    def end_tournament(self, end_date):
         """Class to set the tournament's end date. Only works if
         every rounds have been played (last round has an end date).
         """
@@ -140,16 +141,13 @@ class Tournament:
         round_done = bool(self.__round_list[len(self.__round_list) -
                                             1].end_date)
         if every_round_exit and round_done and not self.end_date:
-            while True:
-                self.end_date = input("Date de fin du tournoi (JJ/MM/AAAA) : ")
-                try:
-                    dt.datetime.strptime(self.end_date, "%d/%m/%Y")
-                    break
-                except ValueError:
-                    print("Format invalide, veuillez recommencer.\n")
+            try:
+                dt.datetime.strptime(self.end_date, "%d/%m/%Y")
+                self.end_date = end_date
+            except ValueError:
+                raise Warning
         else:
-            print("Le tournoi n'est pas terminé.")
-            print("Impossible de fixer une date de fin.\n")
+            raise Exception
 
     def __str__(self):
         end_date_info = self.end_date if self.end_date else "En cours"
@@ -187,5 +185,3 @@ if __name__ == '__main__':
     t1.end_tournament()
 
     t1.save_tournament_in_db("tournamentdb.json", update=True)
-
-

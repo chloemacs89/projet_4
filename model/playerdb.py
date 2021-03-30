@@ -3,8 +3,6 @@
 
 import os
 
-from tinydb import TinyDB, Query
-
 from model.player import Player
 from model.interactDB import InteractDB
 
@@ -32,8 +30,7 @@ class SavePlayer(InteractDB):
         if not id_from_db:
             self.players.insert(player_data)
         else:
-            raise Warning(
-                f"Joueur ({id_player}) déjà présent dans la base de données.")
+            raise Warning(f"Joueur ({id_player}) déjà présent dans la base de données.")
 
 
 class LoadPlayer(InteractDB):
@@ -59,9 +56,7 @@ class LoadPlayer(InteractDB):
                           gender=player_exists["gender"],
                           rank=player_exists["rank"])
         else:
-            raise Warning(
-                f"Joueur ({player_id}) absent de la base de données. Rappel du format: '1000_AA'"
-            )
+            raise Warning(f"Joueur ({player_id}) absent de la base de données. Rappel du format: '1000_ABCDEF'")
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ import os
 
 from tinydb import TinyDB, Query
 
+
 class InteractDB:
     """Parent class for players class to interact with players
     database.

@@ -33,11 +33,16 @@ class Control:
             "MAX_ROUND": "Action impossible : nombre de ronde maximum atteint.",
             "MISSING_ROUND": "Action impossible : aucune ronde n'existe.",
             "ONGOING_ROUND": "Action impossible : veuillez terminer la ronde en cours.",
-            "DONE_ROUND": "Action impossible : la dernière ronde a déjà été jouée."
+            "DONE_ROUND": "Action impossible : la dernière ronde a déjà été jouée.",
+            "MISSING_TOURNAMENT": "Action impossible : nom de tournoi absent de la base de données.",
+            "ONGOING_TOURNAMENT": "Action impossible : toutes les rondes n'ont pas encore été jouées."
         }
 
     @staticmethod
     def get_file_list():
+        """Return a list of files inside data directory. List is then
+        displayed by view.
+        """
         file_list = os.listdir("data")
         view.show_listed_data(file_list)
         return file_list
@@ -52,6 +57,9 @@ class Control:
             view.show_warning(self.error_messages["MISSING_FILE"])
 
     def start_menu(self):
+        """Ask the user to choose between the various start menu
+        options displayed by view.
+        """
         view.show_start_menu(self.today, self.current_time)
 
         while True:
@@ -66,8 +74,8 @@ class Control:
                     view.show_warning(self.error_messages["NO_TOURNAMENT"])
                     break
             elif resp == "3":
-                # TODO: Fonctionnalité à implémenter dans le modèle et le contrôleur.
-                pass
+                self.load_tournament_from_db()
+                break
             elif resp == "4":
                 if self.tournament_list:
                     view.show_listed_data(self.tournament_list)
@@ -108,6 +116,9 @@ class Control:
                 pass
 
     def create_tournament(self):
+        """Ask the user for the informations needed to make an instance
+        of a class Tournament.
+        """
         view.show_create_tournament()
         name = input("Nom du tournoi : ")
         localization = input("Lieu du tournoi : ")
@@ -179,6 +190,9 @@ class Control:
             view.show_warning(self.error_messages["MAX_PLAYER"])
 
     def tournament_menu(self):
+        """Ask the user to chooses between the various options availables
+        in the tournament_menu, as displayed by view.
+        """
         view.show_tournament_menu(self.current_tournament.name,
                                   self.current_tournament.localization,
                                   self.current_tournament.beg_date)
@@ -204,6 +218,9 @@ class Control:
             elif resp == "7":
                 self.load_player_menu()
                 break
+            elif resp == "8":
+                self.save_tournament_in_db()
+                break
             elif resp == "q":
                 break
             else:
@@ -215,6 +232,9 @@ class Control:
             self.start_menu()
 
     def rounds_menu(self):
+        """Ask the user to choose between the various options available
+        in the rounds menu, as displayed by view.
+        """
         view.show_rounds_menu()
 
         while True:
@@ -246,6 +266,12 @@ class Control:
             self.rounds_menu()
 
     def add_round(self):
+        """Add a round to the current tournament by calling the add_round_to_list
+        method of the current tournament instance. Display a warning if :
+        - Not enough players added to the tournament ;
+        - Last round hasn't been played yet ;
+        - MAX_ROUND_LIST has been reached.
+        """
         last_round_nb = len(self.current_tournament.get_round_list)
 
         if len(self.current_tournament.get_player_list) != self.current_tournament.MAX_PLAYER_LIMIT:
@@ -276,6 +302,9 @@ class Control:
             view.show_warning(self.error_messages["MAX_ROUND"])
 
     def describe_rounds(self, index=None):
+        """Show the rounds report. If index argument is given, a unique round
+        is displayed.
+        """
         if index is None:
             for rd in self.current_tournament.get_round_list:
                 start_date = dt.strftime(rd.start_date, "%d/%m/%Y - %H:%M")
@@ -291,6 +320,9 @@ class Control:
                 view.show_warning(self.error_messages["INVALIDE_FORMAT"])
 
     def play_round(self):
+        """Play the last round added to the tournament by calling the play_round
+        method of the current tournament instance.
+        """
         try:
             nb_rd = len(self.current_tournament.get_round_list) - 1
             rd = self.current_tournament.get_round_list[nb_rd]
@@ -326,6 +358,12 @@ class Control:
             view.show_warning(self.error_messages["ONGOING_ROUND"])
 
     def describe_players_menu(self):
+        """Send the information needed by view to display the list of players
+        can be displayed by :
+        - Alphabetical order ;
+        - Rank order ;
+        - A unique player if index argument is given.
+        """
         view.show_players_report()
 
         while True:
@@ -420,14 +458,128 @@ class Control:
         if resp in ("1", "2", "3", "4"):
             self.load_player_menu()
 
+    def load_tournament_menu(self):
+        view.show_load_player_menu()
+        while True:
+            resp = input("Choix : ")
+            if resp == "1":
+                self.get_file_list()
+                break
+            elif resp == "2":
+                self.list_tournaments_in_db()
+                break
+            elif resp == "3":
+                self.load_tournament_from_db()
+            elif resp == "q":
+                break
+            else:
+                view.show_warning(self.error_messages["UNKNOWN_COMMAND"])
+
+        if resp in ("1", "2", "3"):
+            self.load_tournament_menu()
+        else:
+            self.start_menu()
+
+    def set_tournament_end_date(self):
+        while True:
+            date = input("Choisir une date de fin (JJ/MM/AAAA) : ")
+            try:
+                self.current_tournament.end_tournament(date)
+                break
+            except Warning:
+                view.show_warning(self.error_messages["INVALID_DATE"])
+            except Exception:
+                view.show_warning(self.error_messages["ONGOING_TOURNAMENT"])
+                break
+
+        self.tournament_menu()
+
+    def load_tournament_from_db(self):
+        """Load a saved tournament avalable in the database.
+        """
+        view.show_message("Fichiers existants : ")
+        self.get_file_list()
+        file_name = input("Nom du fichier de chargement : ")
+        loader = trdb.TournamentDB(file_name)
+        name = input("Nom du tournoi à charger : ")
+        try:
+            tournament_data = loader.load_tournament_from_db(name)
+            tournament_info = tournament_data[0]
+            players_info = tournament_data[1]
+            rounds_info = tournament_data[2]
+
+            loaded_tournament = trn.Tournament(tournament_info["name"],
+                                               tournament_info["localization"],
+                                               tournament_info["time_control"],
+                                               tournament_info["description"],
+                                               tournament_info["beg_date"],
+                                               tournament_info["end_date"])
+
+            if players_info:
+                for e, players in enumerate(players_info):
+                    player = players[f"player{e}"]
+                    loaded_tournament.add_new_player(player["last_name"],
+                                                     player["first_name"],
+                                                     player["date_birth"],
+                                                     player["gender"],
+                                                     player["rank"])
+
+            # Saved rounds data only contains scores. The rounds are build
+            # through the application internal logic. Scores are added only
+            # if the saved rounds data has an end_date
+            if rounds_info:
+                for e, rnd in enumerate(rounds_info):
+                    if rnd[f"Round {e+1}"]["end_date"] is None:
+                        pass
+                    else:
+                        loaded_tournament.add_round_to_list(f"Round {e+1}")
+                        currrent_round = loaded_tournament.get_round_list[e]
+                        for nb, game in enumerate(currrent_round.get_match_list):
+                            score1 = rnd[f"Round {e+1}"][f"game {nb + 1}"][0]
+                            score2 = rnd[f"Round {e+1}"][f"game {nb + 1}"][1]
+                            P1 = game[0][0]
+                            P2 = game[0][1]
+                            game[1][0] = score1
+                            game[1][1] = score2
+                            P1.set_player_score = score1
+                            P2.set_player_score = score2
+                            currrent_round.end_date = rnd[f"Round {e+1}"]["end_date"]
+
+            self.tournament_list.append(loaded_tournament)
+            self.current_tournament = loaded_tournament
+
+        except Warning:
+            view.show_warning(self.error_messages["MISSING_TOURNAMENT"])
+            self.start_menu()
+
+    def save_tournament_in_db(self):
+        file_name = input("Nom du fichier de sauvegarde : ")
+        self.current_tournament.save_tournament_in_db(file_name)
+
+    def list_tournaments_in_db(self):
+        """Send the tournaments data of a database file to be displayed
+        by view.
+        """
+        view.show_message("Fichiers disponibles :\n")
+        self.get_file_list()
+        file_name = input("Nom du fichier : ")
+        loader = trdb.TournamentDB(file_name)
+        all_tournaments = loader.list_tournaments_in_db()
+        for one_tournament in all_tournaments:
+            view.show_key_val_data(one_tournament["tournament_data"]["tournament_info"])
+
 
 if __name__ == '__main__':
     ct = Control()
     tr = trn.Tournament("Tournoi", "Caen", "Bullet", "", "25/03/2021 17:00")
 
-    ct.current_tournament = tr
+    tr2 = trn.Tournament("Tour du babour", "Honfleur", "Blitz", "", "30/03/2021 10:00")
 
-    ct.tournament_list.append(tr)
+    ct.list_tournaments_in_db()
+
+    ct.current_tournament = tr2
+
+    ct.tournament_list.append(tr2)
 
     plyr = [
         trn.Player("POIRIER", "Marine", "14/05/1992", "F", 1),
