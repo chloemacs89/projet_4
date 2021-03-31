@@ -74,7 +74,7 @@ class Control:
                     view.show_warning(self.error_messages["NO_TOURNAMENT"])
                     break
             elif resp == "3":
-                self.load_tournament_from_db()
+                self.load_tournament_menu()
                 break
             elif resp == "4":
                 if self.tournament_list:
@@ -113,7 +113,7 @@ class Control:
             if confirmation.lower() == "n":
                 self.start_menu()
             elif confirmation.lower() == "o":
-                pass
+                quit()
 
     def create_tournament(self):
         """Ask the user for the informations needed to make an instance
@@ -459,7 +459,7 @@ class Control:
             self.load_player_menu()
 
     def load_tournament_menu(self):
-        view.show_load_player_menu()
+        view.show_load_tournament_menu()
         while True:
             resp = input("Choix : ")
             if resp == "1":
@@ -470,6 +470,7 @@ class Control:
                 break
             elif resp == "3":
                 self.load_tournament_from_db()
+                break
             elif resp == "q":
                 break
             else:
@@ -477,7 +478,7 @@ class Control:
 
         if resp in ("1", "2", "3"):
             self.load_tournament_menu()
-        else:
+        elif resp == "q":
             self.start_menu()
 
     def set_tournament_end_date(self):
@@ -554,7 +555,19 @@ class Control:
 
     def save_tournament_in_db(self):
         file_name = input("Nom du fichier de sauvegarde : ")
-        self.current_tournament.save_tournament_in_db(file_name)
+        update = False
+        loader = trdb.TournamentDB(file_name)
+        all_tournaments = loader.list_tournaments_in_db()
+        for tournament in all_tournaments:
+            if self.current_tournament.name in tournament["tournament_data"]["tournament_info"].values():
+                update = True
+            else:
+                pass
+
+        if update:
+            self.current_tournament.save_tournament_in_db(file_name, update)
+        else:
+            self.current_tournament.save_tournament_in_db(file_name)
 
     def list_tournaments_in_db(self):
         """Send the tournaments data of a database file to be displayed
@@ -594,6 +607,10 @@ if __name__ == '__main__':
 
     for p in plyr:
         ct.current_tournament._Tournament__player_list.append(p)
+
+    ct.load_tournament_from_db()
+    ct.load_tournament_menu()
+    ct.save_tournament_in_db()
 
     ct.start_menu()
     ct.describe_players(by_name=True)
