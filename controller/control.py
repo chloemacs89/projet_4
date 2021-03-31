@@ -208,6 +208,7 @@ class Control:
                 self.rounds_menu()
                 break
             elif resp == "4":
+                self.set_tournament_end_date()
                 break
             elif resp == "5":
                 self.describe_players_menu()
@@ -378,6 +379,21 @@ class Control:
                 index = int(
                     view.ask_user_input("Joueur à afficher (choisir entre 1 et 8) : "))
                 self.describe_players(index=index)
+                break
+            elif resp == "4":
+                while True:
+                    index = int(view.ask_user_input("Numéro du joueur : "))
+                    new_rank = int(view.ask_user_input("Nouveau rang : "))
+                    if new_rank > 0:
+                        try:
+                            self.current_tournament.get_player_list[index-1].set_player_rank = new_rank
+                            break
+                        except IndexError:
+                            view.show_warning(self.error_messages["MISSING_INDEX"])
+                        except ValueError:
+                            view.show_warning(self.error_messages["INVALIDE_FORMAT"])
+                    else:
+                        view.show_warning(self.error_messages["INVALID_INT"])
                 break
             else:
                 view.show_warning(self.error_messages["UNKNOWN_COMMAND"])

@@ -46,6 +46,14 @@ class Player:
     def set_player_score(self, score):
         self.__score = self.__score + score
 
+    @property
+    def get_player_rank(self):
+        return self.rank
+
+    @get_player_rank.setter
+    def set_player_rank(self, rank):
+        self.rank = rank
+
     def __eq__(self, other):
         return self.rank == other.rank
 

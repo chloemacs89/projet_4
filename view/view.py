@@ -6,13 +6,14 @@ def show_message(message):
 
 
 def show_listed_data(data_list):
+    print("------------------------------")
     for data in data_list:
         print(data)
-
+    print("------------------------------\n")
 
 def show_done_action(message=None, current_val=None, max_val=None):
     if message and current_val and max_val:
-        print(message, f"{current_val}/{max_val}\n")
+        print(message, "-", f"({current_val}/{max_val})\n")
     else:
         print("Opération terminée.\n")
 
@@ -22,7 +23,7 @@ def show_warning(message):
 
 
 def show_start_menu(date, hour):
-    print("Bienvenue dans votre application de gestion de tournois d'échec.")
+    print("\nBienvenue dans votre application de gestion de tournois d'échec.")
     print(f"Nous somme le {date} à {hour}.\n")
 
     print("Catégories disponibles.")
@@ -36,17 +37,17 @@ def show_start_menu(date, hour):
 
 
 def show_create_tournament():
-    print("========================================")
+    print("\n========================================")
     print("Bienvenue dans la création d'un tournoi.")
     print("========================================\n")
 
 
 def show_tournament_menu(name, localization, start_date):
-    print("==============================")
+    print("\n============================================================")
     print(f"{name}, ", end='')
     print(f"{localization}, ", end='')
     print(f"{start_date}.")
-    print("==============================\n")
+    print("============================================================\n")
 
     print("Ajouter un joueur au tournoi. (1)")
     print("Ajouter une nouveller ronde au tournoi. (2)")
@@ -77,24 +78,25 @@ def show_rounds_report(name, match_list, start_date, end_date):
 
 
 def show_players_report():
-    print("Afficher la liste des joueurs (à défaut, l'affichage se fait pas ordre d'ajout) :\n")
+    print("\nAfficher la liste des joueurs (à défaut, l'affichage se fait pas ordre d'ajout) :\n")
     print("Par ordre alphabatique (1)")
     print("Par ordre de classement (2)")
     print("Afficher un joueur spécifique (3)")
+    print("Modifier le rang d'un joueur (4)\n")
 
 
 def show_load_tournament_menu():
-    print("==============================")
+    print("\n==============================")
     print("Menu du chargement des tournois.")
     print("==============================\n")
     print("Afficher la liste des fichers de la base de données. (1)")
     print("Affiche les tournois sauvegardés dans un fichier spécifique. (2)")
     print("Charger un tournoi à partir d'un fichier. (3)")
-    print("Retour au menu principal. (q)")
+    print("Retour au menu principal. (q)\n")
 
 
 def show_rounds_menu():
-    print("==============================")
+    print("\n==============================")
     print("Menu des rondes")
     print("==============================\n")
     print("Afficher une ronde spécifique. (1)")
@@ -104,16 +106,16 @@ def show_rounds_menu():
 
 
 def show_play_menu(round_name):
-    print(f"Résultat pour le {round_name}.\n")
+    print(f"\nRésultat pour le {round_name}.\n")
     print("Entrer 'J1' si J1 gagnant.")
     print("Entrer 'J2' si J2 gagnant.")
-    print("Entrer 'Nul' si le match est nul.")
+    print("Entrer 'Nul' si le match est nul.\n")
 
 
 def show_save_player_menu():
-    print("==============================")
+    print("\n====================================================")
     print("Menu de sauvegarde des joueurs dans la base de données")
-    print("==============================\n")
+    print("======================================================\n")
 
     print("Afficher la liste des fichier de la base de données. (1)")
     print("Sauvegarder les joueurs dans la base de données (2)")
@@ -121,9 +123,9 @@ def show_save_player_menu():
 
 
 def show_load_player_menu():
-    print("==============================")
+    print("\n=======================================================")
     print("Menu de chargement des joueurs depuis la base de données.")
-    print("==============================\n")
+    print("=========================================================\n")
     print("Afficher la liste des fichiers de la base de données. (1)")
     print("Afficher la liste des joueurs présents dans un fichier spécifique. (2)")
     print("Ajouter un joueur depuis la base de données. (3)")
@@ -138,4 +140,5 @@ def show_key_val_data(dict_data):
 
 def ask_user_input(message):
     choice = input(f"{message}")
+    print()
     return choice
