@@ -63,7 +63,7 @@ class Control:
         view.show_start_menu(self.today, self.current_time)
 
         while True:
-            resp = input("Choix : ")
+            resp = view.ask_user_input("Choix : ")
             if resp == "1":
                 self.create_tournament()
                 break
@@ -84,7 +84,7 @@ class Control:
                     view.show_warning(self.error_messages["NO_TOURNAMENT"])
                     break
             elif resp == "5":
-                index = int(input("N° du tournoi à selectionner : "))
+                index = int(view.ask_user_input("N° du tournoi à selectionner : "))
                 if self.tournament_list:
                     try:
                         self.current_tournament = self.tournament_list[index - 1]
@@ -109,7 +109,7 @@ class Control:
         elif resp in ("2", "3", "4", "5"):
             self.start_menu()
         elif resp == "q":
-            confirmation = input("êtes-vous sûr de vouloir quitter l'application ? (O/N)")
+            confirmation = view.ask_user_input("êtes-vous sûr de vouloir quitter l'application ? (O/N)")
             if confirmation.lower() == "n":
                 self.start_menu()
             elif confirmation.lower() == "o":
@@ -120,21 +120,21 @@ class Control:
         of a class Tournament.
         """
         view.show_create_tournament()
-        name = input("Nom du tournoi : ")
-        localization = input("Lieu du tournoi : ")
+        name = view.ask_user_input("Nom du tournoi : ")
+        localization = view.ask_user_input("Lieu du tournoi : ")
 
         while True:
-            time_control = input(
+            time_control = view.ask_user_input(
                 "Type de contrôle du temps (Bullet, Blitz ou Coup rapide) : ")
             if time_control.lower() in ("bullet", "blitz", "coup rapide"):
                 break
             else:
                 view.show_warning(self.error_messages["INVALIDE_FORMAT"])
 
-        description = input("Description du tournoi (optionnel) : ")
+        description = view.ask_user_input("Description du tournoi (optionnel) : ")
 
         while True:
-            beg_date = input("Date de début du tournoi (JJ/MM/AAAA HH:MM): ")
+            beg_date = view.ask_user_input("Date de début du tournoi (JJ/MM/AAAA HH:MM): ")
             try:
                 dt.strptime(beg_date, "%d/%m/%Y %H:%M")
                 break
@@ -152,11 +152,11 @@ class Control:
         """
         if len(self.current_tournament.get_player_list) < self.current_tournament.MAX_PLAYER_LIMIT:
             view.show_message("Adding a new player. Please enter the following informations.")
-            l_name = input("Last name: ")
-            f_name = input("First name: ")
+            l_name = view.ask_user_input("Last name: ")
+            f_name = view.ask_user_input("First name: ")
 
             while True:
-                date_birth = input("Date of birth (JJ/MM/AAAA): ")
+                date_birth = view.ask_user_input("Date of birth (JJ/MM/AAAA): ")
                 # check date validity. Numbers validity and calendar validity
                 try:
                     dt.strptime(date_birth, "%d/%m/%Y")
@@ -165,7 +165,7 @@ class Control:
                     view.show_warning(self.error_messages["INVALID_DATE"])
 
             while True:
-                gender = input("Gender (M/F): ")
+                gender = view.ask_user_input("Gender (M/F): ")
                 if gender.upper() in ("M", "F"):
                     break
                 else:
@@ -173,7 +173,7 @@ class Control:
 
             while True:
                 try:
-                    rank = int(input("Rank (must be a positive integer): "))
+                    rank = int(view.ask_user_input("Rank (must be a positive integer): "))
                     if isinstance(rank, int) and rank > 0:
                         break
                     else:
@@ -197,7 +197,7 @@ class Control:
                                   self.current_tournament.localization,
                                   self.current_tournament.beg_date)
         while True:
-            resp = input("Choix : ")
+            resp = view.ask_user_input("Choix : ")
             if resp == "1":
                 self.add_player_to_tournament()
                 break
@@ -238,11 +238,11 @@ class Control:
         view.show_rounds_menu()
 
         while True:
-            choice = input("Choix : ")
+            choice = view.ask_user_input("Choix : ")
             print()
             if choice == "1":
                 try:
-                    index = int(input("Numéro de la ronde à afficher (1, 2, 3 ou 4) : "))
+                    index = int(view.ask_user_input("Numéro de la ronde à afficher (1, 2, 3 ou 4) : "))
                 except ValueError:
                     view.show_warning(self.error_messages["INVALIDE_FORMAT"])
                     break
@@ -333,7 +333,7 @@ class Control:
 
                 for nb, game in enumerate(rd.get_match_list):
                     while True:
-                        result = input(
+                        result = view.ask_user_input(
                             f"Résultat match {nb+1} (J1, J2 ou nul) : ")
                         if result.upper() in ("J1", "J2", "NUL"):
                             self.current_tournament.play_round(rd, game, result)
@@ -341,7 +341,7 @@ class Control:
                         else:
                             view.show_warning(self.error_messages["UNKNOWN_COMMAND"])
                 while True:
-                    date = input(
+                    date = view.ask_user_input(
                         "Date de fin de la ronde (JJ/MM/AAAA HH:MM) : ")
                     try:
                         dt.strptime(date, "%d/%m/%Y %H:%M")
@@ -367,7 +367,7 @@ class Control:
         view.show_players_report()
 
         while True:
-            resp = input("Choix : ")
+            resp = view.ask_user_input("Choix : ")
             if resp == "1":
                 self.describe_players(by_name=True)
                 break
@@ -376,7 +376,7 @@ class Control:
                 break
             elif resp == "3":
                 index = int(
-                    input("Joueur à afficher (choisir entre 1 et 8) : "))
+                    view.ask_user_input("Joueur à afficher (choisir entre 1 et 8) : "))
                 self.describe_players(index=index)
                 break
             else:
@@ -412,12 +412,12 @@ class Control:
         view.show_save_player_menu()
 
         while True:
-            resp = input("Choix : ")
+            resp = view.ask_user_input("Choix : ")
             if resp == "1":
                 self.get_file_list()
                 break
             elif resp == "2":
-                db_file = input("Nom du fichier : ")
+                db_file = view.ask_user_input("Nom du fichier : ")
                 self.save_player_into_db(db_file)
                 break
             elif resp == "q":
@@ -437,17 +437,17 @@ class Control:
         view.show_load_player_menu()
 
         while True:
-            resp = input("Choix : ")
+            resp = view.ask_user_input("Choix : ")
             if resp == "1":
                 self.get_file_list()
                 break
             elif resp == "2":
-                db_file = input("Nom du fichier : ")
+                db_file = view.ask_user_input("Nom du fichier : ")
                 self.get_player_list_from_db(db_file)
                 break
             elif resp == "3":
-                db_file = input("Nom du fichier : ")
-                player_id = input("Entrer l'identifiant du joueur à ajouter (1000_ABCDEF) : ")
+                db_file = view.ask_user_input("Nom du fichier : ")
+                player_id = view.ask_user_input("Entrer l'identifiant du joueur à ajouter (1000_ABCDEF) : ")
                 self.add_player_from_db(db_file, player_id)
                 break
             elif resp == "q":
@@ -461,7 +461,7 @@ class Control:
     def load_tournament_menu(self):
         view.show_load_tournament_menu()
         while True:
-            resp = input("Choix : ")
+            resp = view.ask_user_input("Choix : ")
             if resp == "1":
                 self.get_file_list()
                 break
@@ -483,7 +483,7 @@ class Control:
 
     def set_tournament_end_date(self):
         while True:
-            date = input("Choisir une date de fin (JJ/MM/AAAA) : ")
+            date = view.ask_user_input("Choisir une date de fin (JJ/MM/AAAA) : ")
             try:
                 self.current_tournament.end_tournament(date)
                 break
@@ -500,61 +500,65 @@ class Control:
         """
         view.show_message("Fichiers existants : ")
         self.get_file_list()
-        file_name = input("Nom du fichier de chargement : ")
-        loader = trdb.TournamentDB(file_name)
-        name = input("Nom du tournoi à charger : ")
-        try:
-            tournament_data = loader.load_tournament_from_db(name)
-            tournament_info = tournament_data[0]
-            players_info = tournament_data[1]
-            rounds_info = tournament_data[2]
+        file_name = view.ask_user_input("Nom du fichier de chargement : ")
 
-            loaded_tournament = trn.Tournament(tournament_info["name"],
-                                               tournament_info["localization"],
-                                               tournament_info["time_control"],
-                                               tournament_info["description"],
-                                               tournament_info["beg_date"],
-                                               tournament_info["end_date"])
+        if file_name in self.get_file_list():
+            loader = trdb.TournamentDB(file_name)
+            name = view.ask_user_input("Nom du tournoi à charger : ")
+            try:
+                tournament_data = loader.load_tournament_from_db(name)
+                tournament_info = tournament_data[0]
+                players_info = tournament_data[1]
+                rounds_info = tournament_data[2]
 
-            if players_info:
-                for e, players in enumerate(players_info):
-                    player = players[f"player{e}"]
-                    loaded_tournament.add_new_player(player["last_name"],
-                                                     player["first_name"],
-                                                     player["date_birth"],
-                                                     player["gender"],
-                                                     player["rank"])
+                loaded_tournament = trn.Tournament(tournament_info["name"],
+                                                   tournament_info["localization"],
+                                                   tournament_info["time_control"],
+                                                   tournament_info["description"],
+                                                   tournament_info["beg_date"],
+                                                   tournament_info["end_date"])
 
-            # Saved rounds data only contains scores. The rounds are build
-            # through the application internal logic. Scores are added only
-            # if the saved rounds data has an end_date
-            if rounds_info:
-                for e, rnd in enumerate(rounds_info):
-                    if rnd[f"Round {e+1}"]["end_date"] is None:
-                        pass
-                    else:
-                        loaded_tournament.add_round_to_list(f"Round {e+1}")
-                        currrent_round = loaded_tournament.get_round_list[e]
-                        for nb, game in enumerate(currrent_round.get_match_list):
-                            score1 = rnd[f"Round {e+1}"][f"game {nb + 1}"][0]
-                            score2 = rnd[f"Round {e+1}"][f"game {nb + 1}"][1]
-                            P1 = game[0][0]
-                            P2 = game[0][1]
-                            game[1][0] = score1
-                            game[1][1] = score2
-                            P1.set_player_score = score1
-                            P2.set_player_score = score2
-                            currrent_round.end_date = rnd[f"Round {e+1}"]["end_date"]
+                if players_info:
+                    for e, players in enumerate(players_info):
+                        player = players[f"player{e}"]
+                        loaded_tournament.add_new_player(player["last_name"],
+                                                         player["first_name"],
+                                                         player["date_birth"],
+                                                         player["gender"],
+                                                         player["rank"])
 
-            self.tournament_list.append(loaded_tournament)
-            self.current_tournament = loaded_tournament
+                # Saved rounds data only contains scores. The rounds are build
+                # through the application internal logic. Scores are added only
+                # if the saved rounds data has an end_date
+                if rounds_info:
+                    for e, rnd in enumerate(rounds_info):
+                        if rnd[f"Round {e+1}"]["end_date"] is None:
+                            pass
+                        else:
+                            loaded_tournament.add_round_to_list(f"Round {e+1}")
+                            currrent_round = loaded_tournament.get_round_list[e]
+                            for nb, game in enumerate(currrent_round.get_match_list):
+                                score1 = rnd[f"Round {e+1}"][f"game {nb + 1}"][0]
+                                score2 = rnd[f"Round {e+1}"][f"game {nb + 1}"][1]
+                                P1 = game[0][0]
+                                P2 = game[0][1]
+                                game[1][0] = score1
+                                game[1][1] = score2
+                                P1.set_player_score = score1
+                                P2.set_player_score = score2
+                                currrent_round.end_date = rnd[f"Round {e+1}"]["end_date"]
 
-        except Warning:
-            view.show_warning(self.error_messages["MISSING_TOURNAMENT"])
-            self.start_menu()
+                self.tournament_list.append(loaded_tournament)
+                self.current_tournament = loaded_tournament
+
+            except Warning:
+                view.show_warning(self.error_messages["MISSING_TOURNAMENT"])
+                self.start_menu()
+        else:
+            view.show_warning(self.error_messages["MISSING_FILE"])
 
     def save_tournament_in_db(self):
-        file_name = input("Nom du fichier de sauvegarde : ")
+        file_name = view.ask_user_input("Nom du fichier de sauvegarde : ")
         update = False
         loader = trdb.TournamentDB(file_name)
         all_tournaments = loader.list_tournaments_in_db()
@@ -575,11 +579,14 @@ class Control:
         """
         view.show_message("Fichiers disponibles :\n")
         self.get_file_list()
-        file_name = input("Nom du fichier : ")
-        loader = trdb.TournamentDB(file_name)
-        all_tournaments = loader.list_tournaments_in_db()
-        for one_tournament in all_tournaments:
-            view.show_key_val_data(one_tournament["tournament_data"]["tournament_info"])
+        file_name = view.ask_user_input("Nom du fichier : ")
+        if file_name in self.get_file_list():
+            loader = trdb.TournamentDB(file_name)
+            all_tournaments = loader.list_tournaments_in_db()
+            for one_tournament in all_tournaments:
+                view.show_key_val_data(one_tournament["tournament_data"]["tournament_info"])
+        else:
+            view.show_warning(self.error_messages["MISSING_FILE"])
 
 
 if __name__ == '__main__':

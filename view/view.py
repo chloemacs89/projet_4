@@ -134,3 +134,8 @@ def show_key_val_data(dict_data):
     for key, val in dict_data.items():
         print(key, ":", val, end=", ")
     print()
+
+
+def ask_user_input(message):
+    choice = input(f"{message}")
+    return choice
