@@ -4,3 +4,4 @@ env/
 *.json
 data/
 __pycache__
+flake-report/
