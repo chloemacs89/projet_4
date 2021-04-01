@@ -38,7 +38,11 @@ class Tour:
             sorted_player_inf = sorted_player[int(len(sorted_player) /
                                                   2):len(sorted_player)]
             for i in range(len(sorted_player_inf)):
-                versus = [sorted_player_sup[i], sorted_player_inf[i]]
+                J1 = sorted_player_sup[i]
+                J2 = sorted_player_inf[i]
+                versus = [J1, J2]
+                J1.set_already_met = J2
+                J2.set_already_met = J2
                 score = [0, 0]
                 match = (versus, score)
                 self.match_list.append(match)
@@ -49,24 +53,21 @@ class Tour:
                                    key=attrgetter("_Player__score"),
                                    reverse=True)
 
+            import pdb; pdb.set_trace()
             for i in range(len(sorted_player)):
                 # loop until 'sorted_player' is empty
                 if sorted_player:
                     count = 1
                     versus = [sorted_player[0], sorted_player[count]]
-                    # Loop to check if players already met each other in all of the
-                    # previous rounds played before
-                    for rounds in prev_round_list:
-                        for prev_round in rounds.match_list:
-                            # If players already met, the first player in the list
-                            # is paired with the next player.
-                            if tuple(versus) in permutations(prev_round[0]):
-                                try:
-                                    count += 1
-                                    versus = [sorted_player[0], sorted_player[count]]
-                                except IndexError:
-                                    count -= 1
+                    while sorted_player[count] in sorted_player[0].get_already_met_list:
+                        try:
+                            count += 1
+                            versus = [sorted_player[0], sorted_player[count]]
+                        except IndexError:
+                            count -= 1
                     self.match_list.append((versus, [0, 0]))
+                    sorted_player[0].set_already_met = sorted_player[count]
+                    sorted_player[count].set_already_met = sorted_player[0]
                     # Once paired, players are removed from the list.
                     sorted_player.pop(0)
                     sorted_player.pop(count - 1)

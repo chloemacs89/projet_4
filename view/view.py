@@ -11,6 +11,7 @@ def show_listed_data(data_list):
         print(data)
     print("------------------------------\n")
 
+
 def show_done_action(message=None, current_val=None, max_val=None):
     if message and current_val and max_val:
         print(message, "-", f"({current_val}/{max_val})\n")

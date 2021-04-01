@@ -20,6 +20,7 @@ class Player:
         self.id_player = self.date_birth.replace("/", "")[4:] + "_" \
             + self.last_name[0:3].upper() \
             + self.first_name[0:3].upper()
+        self.already_met = []
         self.__score = score
         self.__player_saved_info = {
             "last_name": self.last_name,
@@ -41,6 +42,14 @@ class Player:
     @property
     def get_player_score(self):
         return self.__score
+
+    @property
+    def get_already_met_list(self):
+        return self.already_met
+
+    @get_already_met_list.setter
+    def set_already_met(self, player):
+        self.already_met.append(player)
 
     @get_player_score.setter
     def set_player_score(self, score):

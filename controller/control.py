@@ -515,10 +515,10 @@ class Control:
         """Load a saved tournament avalable in the database.
         """
         view.show_message("Fichiers existants : ")
-        self.get_file_list()
+        file_list = self.get_file_list()
         file_name = view.ask_user_input("Nom du fichier de chargement : ")
 
-        if file_name in self.get_file_list():
+        if file_name in file_list:
             loader = trdb.TournamentDB(file_name)
             name = view.ask_user_input("Nom du tournoi à charger : ")
             try:
