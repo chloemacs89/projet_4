@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from operator import attrgetter
-from itertools import permutations
 import datetime as dt
 
 
@@ -53,7 +52,6 @@ class Tour:
                                    key=attrgetter("_Player__score"),
                                    reverse=True)
 
-            import pdb; pdb.set_trace()
             for i in range(len(sorted_player)):
                 # loop until 'sorted_player' is empty
                 if sorted_player:
