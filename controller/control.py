@@ -502,6 +502,7 @@ class Control:
             date = view.ask_user_input("Choisir une date de fin (JJ/MM/AAAA) : ")
             try:
                 self.current_tournament.end_tournament(date)
+                view.show_message(f"Date de fin du tournoi : {date}")
                 break
             except Warning:
                 view.show_warning(self.error_messages["INVALID_DATE"])

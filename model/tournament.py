@@ -137,12 +137,13 @@ class Tournament:
         """Class to set the tournament's end date. Only works if
         every rounds have been played (last round has an end date).
         """
+        import pdb; pdb.set_trace()
         every_round_exit = len(self.__round_list) == self.MAX_ROUND_LIST
         round_done = bool(self.__round_list[len(self.__round_list) -
                                             1].end_date)
-        if every_round_exit and round_done and not self.end_date:
+        if every_round_exit and round_done and self.end_date is None:
             try:
-                dt.datetime.strptime(self.end_date, "%d/%m/%Y")
+                dt.datetime.strptime(end_date, "%d/%m/%Y")
                 self.end_date = end_date
             except ValueError:
                 raise Warning
