@@ -137,7 +137,6 @@ class Tournament:
         """Class to set the tournament's end date. Only works if
         every rounds have been played (last round has an end date).
         """
-        import pdb; pdb.set_trace()
         every_round_exit = len(self.__round_list) == self.MAX_ROUND_LIST
         round_done = bool(self.__round_list[len(self.__round_list) -
                                             1].end_date)
