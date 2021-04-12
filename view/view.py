@@ -51,7 +51,7 @@ def show_tournament_menu(name, localization, start_date):
     print("============================================================\n")
 
     print("Ajouter un joueur au tournoi. (1)")
-    print("Ajouter une nouveller ronde au tournoi. (2)")
+    print("Ajouter une nouvelle ronde au tournoi. (2)")
     print("Accéder au menu des rondes. (3)")
     print("Marquer le tournoi comme terminé. (4)")
     print("Afficher la liste des joueurs (5)")

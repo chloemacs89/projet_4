@@ -227,7 +227,7 @@ class Control:
             else:
                 view.show_warning(self.error_messages["UNKNOWN_COMMAND"])
 
-        if resp in ("1", "2", "3", "4", "5", "6", "7"):
+        if resp in ("1", "2", "3", "4", "5", "6", "7", "8"):
             self.tournament_menu()
         elif resp == "q":
             self.start_menu()
