@@ -46,6 +46,7 @@ class Tour:
                 match = (versus, score)
                 self.match_list.append(match)
         else:
+            import pdb; pdb.set_trace()
             sorted_player = self.player_list[:]
             sorted_player.sort(key=attrgetter("rank"))
             sorted_player = sorted(sorted_player,
@@ -64,6 +65,7 @@ class Tour:
                         except IndexError:
                             count -= 1
                             versus = [sorted_player[0], sorted_player[count]]
+                            break
                     self.match_list.append((versus, [0, 0]))
                     sorted_player[0].set_already_met = sorted_player[count]
                     sorted_player[count].set_already_met = sorted_player[0]
