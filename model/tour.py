@@ -63,6 +63,7 @@ class Tour:
                             versus = [sorted_player[0], sorted_player[count]]
                         except IndexError:
                             count -= 1
+                            versus = [sorted_player[0], sorted_player[count]]
                     self.match_list.append((versus, [0, 0]))
                     sorted_player[0].set_already_met = sorted_player[count]
                     sorted_player[count].set_already_met = sorted_player[0]
